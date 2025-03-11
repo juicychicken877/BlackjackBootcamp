@@ -3,34 +3,37 @@ using UnityEngine;
 
 public class HandsManager : MonoBehaviour
 {
-    [SerializeField] private GameObject _handPrefab;
+    [SerializeField] private HandsVisualManager _visuals;
+    [SerializeField] private Hand _dealerHand;
+    [SerializeField] private int _playerHandCount = 3;
 
-    [Tooltip("Parent transform of new hand objects")]
-    [SerializeField] private Transform _handsParentTransform;
-    [SerializeField] private int _handCount = 3;
+    private List<Hand> _playerHands;
+    private Hand _currHand;
 
-    private List<Hand> _hands;
-
-    public List<Hand> Hands {
-        get => _hands;
+    public List<Hand> PlayerHands {
+        get => _playerHands;
+    }
+    public Hand DealerHand {
+        get => _dealerHand;
+    }
+    public Hand CurrentPlayerHand {
+        get => _currHand;
     }
 
     public void CreateHands() {
-        _hands ??= new();
-        // Create playing hands
-        for (int i = 0; i < _handCount; i++) {
-            NewHand();
-        }
+        _playerHands ??= new();
+
+        _playerHands = _visuals.CreateNewHands(_playerHandCount);
     }
 
-    public void NewHand() {
-        GameObject newHand = Instantiate(_handPrefab);
+    public void NextHand() {
+        if (_currHand == null) {
+            _currHand = _playerHands[0];
+        } else {
+            _currHand = _playerHands[_currHand.Index + 1];
+        }
 
-        newHand.transform.SetParent(_handsParentTransform, false);
-
-        Hand newHandScript = newHand.GetComponent<Hand>();
-
-        _hands.Add(newHandScript);
+        Debug.Log($"Current Hand: {_currHand.gameObject.name}");
     }
 
 }

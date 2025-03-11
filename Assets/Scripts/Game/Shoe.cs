@@ -5,10 +5,11 @@ using UnityEngine;
 
 public class Shoe : MonoBehaviour
 {
-    [SerializeField] private int _numberOfDecks = 2;
     [SerializeField] private List<CardSO> _cardsSO;
+    [SerializeField] private int _numberOfDecks = 2;
 
     private List<CardSO> _currentShoe;
+
     public int NumberOfDecks {
         get => _numberOfDecks;
         set => _numberOfDecks = value;
