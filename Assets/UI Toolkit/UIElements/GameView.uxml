@@ -1,11 +1,14 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/UI%20Toolkit/UIElements/GameView.uss?fileID=7433441132597879392&amp;guid=7d73ee1d808c5b34dbe906e0e561275a&amp;type=3#GameView" />
-    <ui:VisualElement name="GameView" style="flex-grow: 1;">
-        <ui:VisualElement name="ActionButtons" style="flex-grow: 1; width: 15%; height: auto; display: flex; visibility: visible; align-items: center; align-self: flex-end; align-content: auto; justify-content: center; right: auto; top: auto; position: relative; margin-right: 0; margin-top: 0; margin-bottom: 10%;">
+    <ui:VisualElement name="GameView" style="flex-grow: 1; flex-direction: column-reverse; align-items: auto; align-content: auto; justify-content: flex-start;">
+        <ui:VisualElement name="ActionButtons" style="flex-grow: 1; width: 15%; height: 100%; display: flex; visibility: visible; align-items: center; align-self: flex-end; align-content: auto; justify-content: center; right: 0; top: 0; position: relative; margin-right: 0; margin-top: 0; margin-bottom: 10%;">
             <ui:Button text="Hit" name="HitBtn" enabled="false" focusable="false" class="action-button" style="text-overflow: ellipsis;" />
             <ui:Button text="Stand" name="StandBtn" enabled="false" class="action-button" />
             <ui:Button text="Split" name="SplitBtn" enabled="false" class="action-button" />
             <ui:Button text="Double Down" name="DoubleDownBtn" enabled="false" class="action-button" />
+        </ui:VisualElement>
+        <ui:VisualElement name="GameButtons" style="flex-grow: 1; width: 15%; height: 100%; display: flex; visibility: visible; align-items: auto; align-self: auto; align-content: auto; justify-content: center; right: auto; top: 0; position: relative; margin-right: 0; margin-top: 0; margin-bottom: 10%; left: 0;">
+            <ui:Button text="Next Round" name="NextRoundBtn" enabled="true" focusable="false" class="action-button" style="text-overflow: ellipsis;" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

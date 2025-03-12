@@ -105,3 +105,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _cardSO: {fileID: 11400000, guid: dc4f19d683a5d9c459e67bebc1e57129, type: 2}
+  _backIamge: {fileID: 784560615552718974, guid: 33017a0c9cb22ef4383c7d186bc85199, type: 3}

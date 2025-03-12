@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ee0cbe8fc83e444aaf8fa88d3160a6b, type: 3}
+  m_Name: AceOfClubs
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 8827197391780038412, guid: 0408696fc3e479a4fb09d86127ce26e0, type: 3}
+  Name: Ace Of Clubs
+  Value: 11
+  IsAce: 1

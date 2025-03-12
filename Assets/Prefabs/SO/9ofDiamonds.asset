@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ee0cbe8fc83e444aaf8fa88d3160a6b, type: 3}
+  m_Name: 9ofDiamonds
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 2181261611199933162, guid: 2b4ab966ee4372c4a9c6aab2027db7cb, type: 3}
+  Name: 9 Of Diamonds
+  Value: 9
+  IsAce: 0

@@ -7,7 +7,7 @@ public class Dealer : MonoBehaviour
     [SerializeField] private int _delayBetweenCardsMiliseconds = 200;
     [SerializeField] private Shoe _shoe;
 
-    public async void DealFirstCards(List<Hand> playerHands, Hand dealerHand, GameManager.Callback AfterFirstCardsMethod) {
+    public async void DealFirstCards(List<PlayerHand> playerHands, DealerHand dealerHand, GameManager.Callback AfterFirstCardsMethod) {
         if (_shoe.CurrentShoe == null || _shoe.CurrentShoe.Count == 0) {
             _shoe.NewShoe();
         }
@@ -17,7 +17,7 @@ public class Dealer : MonoBehaviour
             await Task.Delay(_delayBetweenCardsMiliseconds);
         }
 
-        dealerHand.AddCard(_shoe.NextCard());
+        dealerHand.AddCard(_shoe.NextCard(), false);
         await Task.Delay(_delayBetweenCardsMiliseconds);
 
         // Second card.
@@ -26,9 +26,42 @@ public class Dealer : MonoBehaviour
             await Task.Delay(_delayBetweenCardsMiliseconds);
         }
 
-        dealerHand.AddCard(_shoe.NextCard());
+        // Hidden card.
+        dealerHand.AddCard(_shoe.NextCard(), true);
 
         AfterFirstCardsMethod();
     }
 
+    public async void DrawUntil17(DealerHand dealerHand, GameManager.Callback AfterDrawingHandler) {
+        // Show hidden card.
+        dealerHand.HiddenCard.Turn(Card.ImagePos.Front);
+
+        await Task.Delay(_delayBetweenCardsMiliseconds);
+
+        // Draw until 17
+        while (dealerHand.Score < 17) {
+            dealerHand.AddCard(_shoe.NextCard(), false);
+
+            await Task.Delay(_delayBetweenCardsMiliseconds);
+        }
+
+        AfterDrawingHandler();
+    }
+
+    public void HandleHit(PlayerHand playerCurrHand, GameManager.Callback BustHandler) {
+        playerCurrHand.AddCard(_shoe.NextCard());
+
+        // Player Busted
+        if (playerCurrHand.Score > 21) {
+            BustHandler();
+        }
+    }
+
+    public void HandleSplit() {
+        Debug.Log("No avaliable functionality on split");
+    }
+
+    public void HandleDoubleDown(PlayerHand playerCurrHand) {
+        playerCurrHand.AddCard(_shoe.NextCard());
+    }
 }

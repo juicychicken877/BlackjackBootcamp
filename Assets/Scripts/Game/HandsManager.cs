@@ -4,20 +4,20 @@ using UnityEngine;
 public class HandsManager : MonoBehaviour
 {
     [SerializeField] private HandsVisualManager _visuals;
-    [SerializeField] private Hand _dealerHand;
-    [SerializeField] private int _playerHandCount = 3;
+    [SerializeField] private DealerHand _dealerHand;
+    [SerializeField][Range(1, 3)] private int _playerHandCount = 3;
 
-    private List<Hand> _playerHands;
-    private Hand _currHand;
+    private List<PlayerHand> _playerHands;
+    private PlayerHand _currPlayerHand;
 
-    public List<Hand> PlayerHands {
+    public List<PlayerHand> PlayerHands {
         get => _playerHands;
     }
-    public Hand DealerHand {
+    public DealerHand DealerHand {
         get => _dealerHand;
     }
-    public Hand CurrentPlayerHand {
-        get => _currHand;
+    public PlayerHand CurrPlayerHand {
+        get => _currPlayerHand;
     }
 
     public void CreateHands() {
@@ -26,14 +26,33 @@ public class HandsManager : MonoBehaviour
         _playerHands = _visuals.CreateNewHands(_playerHandCount);
     }
 
-    public void NextHand() {
-        if (_currHand == null) {
-            _currHand = _playerHands[0];
-        } else {
-            _currHand = _playerHands[_currHand.Index + 1];
+    public void ClearAllHands() {
+        // Clear player hands.
+        foreach (var hand in _playerHands) {
+            hand.Clear();
         }
 
-        Debug.Log($"Current Hand: {_currHand.gameObject.name}");
+        _dealerHand.Clear();
+    }
+
+    public void NextHand() {
+        // Set previous hand inactive.
+        if (_currPlayerHand != null) _currPlayerHand.SetHandActive(false);
+
+        if (_currPlayerHand == null) {
+            _currPlayerHand = _playerHands[0];
+        } else {
+            // All player hands were played.
+            if (_currPlayerHand.Index == _playerHandCount - 1) {
+                Debug.Log("All hands played");
+                _currPlayerHand = null;
+            } else {
+                _currPlayerHand = _playerHands[_currPlayerHand.Index + 1];
+            }
+        }
+
+        // Set current hand active.
+        if (_currPlayerHand != null) _currPlayerHand.SetHandActive(true);
     }
 
 }

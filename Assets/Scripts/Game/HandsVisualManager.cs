@@ -8,7 +8,7 @@ public class HandsVisualManager : MonoBehaviour
     [SerializeField] private GameObject _handPrefab;
     [SerializeField] private Transform _playerHandsParentTransform;
 
-    private List<Hand> _playerHands;
+    private List<PlayerHand> _playerHands;
 
     private void DeletePreviousHands() {
         if (_playerHands.Count == 0) {
@@ -20,7 +20,7 @@ public class HandsVisualManager : MonoBehaviour
         }
     }
 
-    public List<Hand> CreateNewHands(int playerHandCount) {
+    public List<PlayerHand> CreateNewHands(int playerHandCount) {
         if (_playerHands != null) {
             DeletePreviousHands();
         } else {
@@ -29,7 +29,7 @@ public class HandsVisualManager : MonoBehaviour
 
         // Create new hand objects and return them to logic manager.
         for (int i = 0; i < playerHandCount; i++) {
-            Hand newHand = NewPlayerHand();
+            PlayerHand newHand = NewPlayerHand();
 
             _playerHands.Add(newHand);
         }
@@ -37,12 +37,12 @@ public class HandsVisualManager : MonoBehaviour
         return _playerHands;
     }
 
-    public Hand NewPlayerHand() {
+    public PlayerHand NewPlayerHand() {
         GameObject newHand = Instantiate(_handPrefab);
 
         newHand.transform.SetParent(_playerHandsParentTransform, false);
 
-        Hand newHandScript = newHand.GetComponent<Hand>();
+        PlayerHand newHandScript = newHand.GetComponent<PlayerHand>();
         newHandScript.Index = _playerHands.Count;
 
         return newHandScript;
