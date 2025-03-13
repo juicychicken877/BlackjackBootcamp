@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,35 +17,36 @@ public class PlayerHandVisual : MonoBehaviour
     [SerializeField] private float _nextCardOffsetY = 2.5f;
     [SerializeField] private float _nextCardOffsetZ = -0.05f;
 
-    private List<Card> _cards;
+    public Card AddCard(CardSO cardSO, int cardCount) {
+        // Calculate new position.
+        Vector3 newCardPos = new((cardCount-1) * _nextCardOffsetX, (cardCount - 1) * _nextCardOffsetY, (cardCount - 1) * _nextCardOffsetZ);
 
-    public Card AddCard(CardSO cardSO) {
-        _cards ??= new();
-
+        // Create new card.
         GameObject newCard = Instantiate(cardSO.Prefab);
-        
-        Vector3 newCardPos = new Vector3(_cards.Count * _nextCardOffsetX, _cards.Count * _nextCardOffsetY, _cards.Count * _nextCardOffsetZ);
-        
+
         newCard.transform.SetParent(_cardsParentTransform, false);
         newCard.transform.localPosition = newCardPos;
 
         Card newCardScript = newCard.GetComponent<Card>();
 
-        _cards.Add(newCardScript);
-
         return newCardScript;
     }
+
+    public void RemoveCard(CardSO cardSO) {
+        // Find a card that has a reference to the CardSO in PlayerHand
+        Card card = GetCards().Find(card => card.CardSO.GetInstanceID() == cardSO.GetInstanceID());
+
+        if (card != null) {
+            Destroy(card.gameObject);
+        }
+    }
+
     public void Clear() {
         UpdateScore(0);
 
-        // Remove cards.
-        if (_cards != null) {
-            foreach (var card in _cards) {
-                Destroy(card.gameObject);
-            }
+        foreach (Card card in _cardsParentTransform.GetComponentsInChildren<Card>()) {
+            Destroy(card.gameObject);
         }
-
-        _cards?.Clear();
     }
 
     public void SetHandActive(bool active) {
@@ -56,5 +58,9 @@ public class PlayerHandVisual : MonoBehaviour
         } else {
             _scoreText.text = score.ToString();
         }
+    }
+
+    private List<Card> GetCards() {
+        return _cardsParentTransform.GetComponentsInChildren<Card>().ToList();
     }
 }

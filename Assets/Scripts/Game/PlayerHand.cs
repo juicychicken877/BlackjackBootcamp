@@ -23,25 +23,43 @@ public class PlayerHand : MonoBehaviour
 
     public void AddCard(CardSO cardSO) {
         _cards ??= new();
-
-        HandleScore(cardSO.Value);
+        _1ValueAces ??= new();
 
         _cards.Add(cardSO);
+        _visuals.AddCard(cardSO, _cards.Count);
 
-        _visuals.AddCard(cardSO);
+        HandleScore(cardSO.Value);
+    }
+
+    public void RemoveCard(int index) {
+        // Out of bounds
+        if (index > _cards.Count - 1) return;
+
+        CardSO cardSO = _cards[index];
+
+        if (cardSO != null) {
+            _score -= cardSO.Value;
+            _visuals.UpdateScore(_score);
+            _cards.Remove(cardSO);
+            _visuals.RemoveCard(cardSO);
+        }
+    }
+
+    public CardSO GetCard(int index) {
+        // Out of bounds
+        if (index > _cards.Count-1) {
+            return null;
+        } else {
+            return _cards[index];
+        }
     }
 
     public void Clear() {
+        _cards?.Clear();
+        _1ValueAces?.Clear();
+
         _score = 0;
         _visuals.UpdateScore(_score);
-        _cards?.Clear();
-
-        if (_1ValueAces != null) {
-            _1ValueAces.Clear();
-        } else {
-            _1ValueAces = new();
-        }
-
         _visuals.Clear();
     }
 
@@ -67,14 +85,15 @@ public class PlayerHand : MonoBehaviour
     }
 
     public List<GameManager.GameAction> GetAvaliableGameActions() {
-        List<GameManager.GameAction> avaliableActions = new() {
-            GameManager.GameAction.Hit,
-            GameManager.GameAction.Stand
-        };
+        List<GameManager.GameAction> avaliableActions = new();
 
         if (_cards.Count < 2) {
-            return null;
+            return avaliableActions;
         }
+
+        // Player can always hit and stand.
+        avaliableActions.Add(GameManager.GameAction.Hit);
+        avaliableActions.Add(GameManager.GameAction.Stand);
 
         // What can a player do with this hand?
         // Split requirements - 2 cards with the same value.

@@ -49,8 +49,6 @@ public class Shoe : MonoBehaviour
         } else {
             CardSO nextCard = _currentShoe[0];
 
-            Debug.Log($"Shoe Message Next Card: {nextCard.Name}");
-
             _currentShoe.RemoveAt(0);
 
             return nextCard;

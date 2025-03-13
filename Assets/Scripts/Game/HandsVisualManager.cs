@@ -1,50 +1,53 @@
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Experimental.AI;
+using UnityEngine.UI;
 
 public class HandsVisualManager : MonoBehaviour
 {
     [SerializeField] private GameObject _handPrefab;
     [SerializeField] private Transform _playerHandsParentTransform;
 
-    private List<PlayerHand> _playerHands;
-
     private void DeletePreviousHands() {
-        if (_playerHands.Count == 0) {
-            Debug.Log("No hands to delete");
-        } else {
-            foreach (var hand in _playerHands) {
+        List<PlayerHand> children = _playerHandsParentTransform.GetComponentsInChildren<PlayerHand>().ToList();
+
+        if (children != null) {
+            foreach (PlayerHand hand in children) {
                 Destroy(hand.gameObject);
             }
         }
     }
 
-    public List<PlayerHand> CreateNewHands(int playerHandCount) {
-        if (_playerHands != null) {
-            DeletePreviousHands();
-        } else {
-            _playerHands = new();
-        }
+    public List<PlayerHand> CreateNewHands(List<PlayerHand> playerHands, int playerHandCount) {
+        playerHands ??= new();
+        playerHands?.Clear();
+
+        DeletePreviousHands();
 
         // Create new hand objects and return them to logic manager.
         for (int i = 0; i < playerHandCount; i++) {
             PlayerHand newHand = NewPlayerHand();
-
-            _playerHands.Add(newHand);
+            playerHands.Add(newHand);
+            newHand.Index = i;
         }
 
-        return _playerHands;
+        return playerHands;
     }
 
     public PlayerHand NewPlayerHand() {
         GameObject newHand = Instantiate(_handPrefab);
-
         newHand.transform.SetParent(_playerHandsParentTransform, false);
+        return newHand.GetComponent<PlayerHand>();
+    }
 
-        PlayerHand newHandScript = newHand.GetComponent<PlayerHand>();
-        newHandScript.Index = _playerHands.Count;
+    public void SetPlayerHandIndex(PlayerHand playerHand) {
+        GameObject playerHandObj = playerHand.gameObject;
 
-        return newHandScript;
+        playerHandObj.transform.SetSiblingIndex(playerHand.Index);
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(_playerHandsParentTransform.GetComponent<RectTransform>());
     }
 }

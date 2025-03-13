@@ -14,34 +14,46 @@ public class DealerHand : MonoBehaviour
         get => _score;
     }
 
-    public Card HiddenCard {
-        get => _hiddenCard;
-    }
-
     public void AddCard(CardSO cardSO, bool hidden) {
         _cards ??= new();
-
-        HandleScore(cardSO.Value);
+        _1ValueAces ??= new();
 
         _cards.Add(cardSO);
-
         Card newCardObj = _visuals.AddCard(cardSO, hidden);
 
         if (hidden) _hiddenCard = newCardObj;
+        if (!hidden) HandleScore(cardSO.Value);
     }
 
     public void Clear() {
         _score = 0;
-        _cards?.Clear();
+        _visuals.UpdateScore(_score);
+        
         _hiddenCard = null;
-
-        if (_1ValueAces != null) {
-            _1ValueAces.Clear();
-        } else {
-            _1ValueAces = new();
-        }
+        
+        _cards?.Clear();
+        _1ValueAces?.Clear();
 
         _visuals.Clear();
+    }
+
+    public bool HasBlackjack() {
+        if (_cards[0] != null && _hiddenCard != null) {
+            // If has blackjack
+            if (_cards[0].Value + _hiddenCard.CardSO.Value == 21) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public void ShowHiddenCard() {
+        _hiddenCard.Turn(Card.ImagePos.Front);
+
+        HandleScore(_hiddenCard.CardSO.Value);
     }
 
     private void HandleScore(int cardValue) {
@@ -58,6 +70,6 @@ public class DealerHand : MonoBehaviour
             }
         }
 
-        // _visuals.UpdateScore(_score);
+        _visuals.UpdateScore(_score);
     }
 }

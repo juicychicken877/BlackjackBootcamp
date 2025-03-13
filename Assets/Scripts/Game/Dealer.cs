@@ -34,7 +34,7 @@ public class Dealer : MonoBehaviour
 
     public async void DrawUntil17(DealerHand dealerHand, GameManager.Callback AfterDrawingHandler) {
         // Show hidden card.
-        dealerHand.HiddenCard.Turn(Card.ImagePos.Front);
+        dealerHand.ShowHiddenCard();
 
         await Task.Delay(_delayBetweenCardsMiliseconds);
 
@@ -55,10 +55,6 @@ public class Dealer : MonoBehaviour
         if (playerCurrHand.Score > 21) {
             BustHandler();
         }
-    }
-
-    public void HandleSplit() {
-        Debug.Log("No avaliable functionality on split");
     }
 
     public void HandleDoubleDown(PlayerHand playerCurrHand) {
