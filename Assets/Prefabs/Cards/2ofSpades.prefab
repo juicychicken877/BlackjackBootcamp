@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 7287445295553757864}
   - component: {fileID: 25400616620697844}
   - component: {fileID: 2175542543882715782}
+  - component: {fileID: 7418735108428545250}
+  - component: {fileID: -3904526971843456078}
   m_Layer: 0
   m_Name: 2ofSpades
   m_TagString: Untagged
@@ -104,5 +106,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cc164ae97e8912428ea26f38ed8c796, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _visuals: {fileID: 7418735108428545250}
   _cardSO: {fileID: 11400000, guid: 44aaaeecb4edac146bbb6ade4786c48c, type: 2}
-  _backIamge: {fileID: 784560615552718974, guid: 33017a0c9cb22ef4383c7d186bc85199, type: 3}
+--- !u!114 &7418735108428545250
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1854082602153667891}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d024cb71e043c474482df3d9a31e7df7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _animator: {fileID: -3904526971843456078}
+  _backImage: {fileID: 784560615552718974, guid: 33017a0c9cb22ef4383c7d186bc85199, type: 3}
+--- !u!114 &-3904526971843456078
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1854082602153667891}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 830608c12b82eba4293132fe089fcd8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _drawingAnimationDuration: 0.5

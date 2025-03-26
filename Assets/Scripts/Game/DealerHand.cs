@@ -51,7 +51,7 @@ public class DealerHand : MonoBehaviour
     }
 
     public void ShowHiddenCard() {
-        _hiddenCard.Turn(Card.ImagePos.Front);
+        _hiddenCard.Visuals.Turn(CardVisual.ImagePos.Front);
 
         HandleScore(_hiddenCard.CardSO.Value);
     }

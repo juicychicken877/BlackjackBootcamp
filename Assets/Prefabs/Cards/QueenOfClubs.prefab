@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 7042132881231314842}
   - component: {fileID: 2069594446490890372}
   - component: {fileID: 2328302182692155075}
+  - component: {fileID: -1494565412250769614}
+  - component: {fileID: 1328861191395914778}
   m_Layer: 0
   m_Name: QueenOfClubs
   m_TagString: Untagged
@@ -104,5 +106,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cc164ae97e8912428ea26f38ed8c796, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _visuals: {fileID: -1494565412250769614}
   _cardSO: {fileID: 11400000, guid: f7f0a003ea8874e4ba6b9d64128aa51e, type: 2}
-  _backIamge: {fileID: 784560615552718974, guid: 33017a0c9cb22ef4383c7d186bc85199, type: 3}
+--- !u!114 &-1494565412250769614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4492778370825380839}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d024cb71e043c474482df3d9a31e7df7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _animator: {fileID: 1328861191395914778}
+  _backImage: {fileID: 784560615552718974, guid: 33017a0c9cb22ef4383c7d186bc85199, type: 3}
+--- !u!114 &1328861191395914778
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4492778370825380839}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 830608c12b82eba4293132fe089fcd8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _drawingAnimationDuration: 0.5

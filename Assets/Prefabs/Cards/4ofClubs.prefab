@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 7376597304264275853}
   - component: {fileID: 4973174158934515896}
   - component: {fileID: 8989134949158451289}
+  - component: {fileID: -935389130029328237}
+  - component: {fileID: -8339610587465570773}
   m_Layer: 0
   m_Name: 4ofClubs
   m_TagString: Untagged
@@ -104,5 +106,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cc164ae97e8912428ea26f38ed8c796, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _visuals: {fileID: -935389130029328237}
   _cardSO: {fileID: 11400000, guid: 384fb3caee1b55d4cba8f3e56577068e, type: 2}
-  _backIamge: {fileID: 784560615552718974, guid: 33017a0c9cb22ef4383c7d186bc85199, type: 3}
+--- !u!114 &-935389130029328237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 559065189549913778}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d024cb71e043c474482df3d9a31e7df7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _animator: {fileID: -8339610587465570773}
+  _backImage: {fileID: 784560615552718974, guid: 33017a0c9cb22ef4383c7d186bc85199, type: 3}
+--- !u!114 &-8339610587465570773
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 559065189549913778}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 830608c12b82eba4293132fe089fcd8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _drawingAnimationDuration: 0.5

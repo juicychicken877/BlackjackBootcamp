@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 3127884334679618054}
   - component: {fileID: 3183688929630503409}
   - component: {fileID: 4983593484120726335}
+  - component: {fileID: -7426672736909847566}
+  - component: {fileID: -2396015551437519248}
   m_Layer: 0
   m_Name: 6ofHearts
   m_TagString: Untagged
@@ -104,5 +106,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cc164ae97e8912428ea26f38ed8c796, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _visuals: {fileID: -7426672736909847566}
   _cardSO: {fileID: 11400000, guid: 74b7b8f1f2ab6ab419376d9f3f59d110, type: 2}
-  _backIamge: {fileID: 784560615552718974, guid: 33017a0c9cb22ef4383c7d186bc85199, type: 3}
+--- !u!114 &-7426672736909847566
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 403174414376294269}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d024cb71e043c474482df3d9a31e7df7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _animator: {fileID: -2396015551437519248}
+  _backImage: {fileID: 784560615552718974, guid: 33017a0c9cb22ef4383c7d186bc85199, type: 3}
+--- !u!114 &-2396015551437519248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 403174414376294269}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 830608c12b82eba4293132fe089fcd8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _drawingAnimationDuration: 0.5

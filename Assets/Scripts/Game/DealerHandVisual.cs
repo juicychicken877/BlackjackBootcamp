@@ -11,12 +11,17 @@ public class DealerHandVisual : MonoBehaviour
 
     public Card AddCard(CardSO cardSO, bool hidden) {
         GameObject newCard = Instantiate(cardSO.Prefab);
-
         Card newCardScript = newCard.GetComponent<Card>();
 
-        if (hidden) newCardScript.Turn(Card.ImagePos.Back);
+        //Vector3 newCardWorldPos = _cardsParentTransform.TransformPoint(newCard.transform.position);
 
+        if (hidden) newCardScript.Visuals.Turn(CardVisual.ImagePos.Back);
+
+        // Set parent.
         newCard.transform.SetParent(_cardsParentTransform, false);
+        
+        //// Start animating.
+        //newCardScript.Visuals.Animator.StartDrawingAnimation(Shoe.Instance.transform.position, newCardWorldPos, newCard.transform.position);
 
         return newCardScript;
     }

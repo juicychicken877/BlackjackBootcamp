@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 4964693515121688506}
   - component: {fileID: 4563614872943079423}
   - component: {fileID: 3816343362592094106}
+  - component: {fileID: -4393350795390796368}
+  - component: {fileID: -1564737032306237177}
   m_Layer: 0
   m_Name: AceOfSpades
   m_TagString: Untagged
@@ -104,5 +106,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cc164ae97e8912428ea26f38ed8c796, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _visuals: {fileID: -4393350795390796368}
   _cardSO: {fileID: 11400000, guid: dc4f19d683a5d9c459e67bebc1e57129, type: 2}
-  _backIamge: {fileID: 784560615552718974, guid: 33017a0c9cb22ef4383c7d186bc85199, type: 3}
+--- !u!114 &-4393350795390796368
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5978765283165969115}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d024cb71e043c474482df3d9a31e7df7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _animator: {fileID: -1564737032306237177}
+  _backImage: {fileID: 784560615552718974, guid: 33017a0c9cb22ef4383c7d186bc85199, type: 3}
+--- !u!114 &-1564737032306237177
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5978765283165969115}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 830608c12b82eba4293132fe089fcd8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _drawingAnimationDuration: 0.5

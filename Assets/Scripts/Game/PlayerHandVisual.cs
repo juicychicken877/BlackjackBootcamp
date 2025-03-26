@@ -13,21 +13,33 @@ public class PlayerHandVisual : MonoBehaviour
     [SerializeField] private Color _activeHandColor;
     [SerializeField] private Color _inactiveHandColor;
     [SerializeField] private TextMeshProUGUI _scoreText;
+    [SerializeField] private Vector3 _doubleDownCardAddOffset;
     [SerializeField] private float _nextCardOffsetX = 1.5f;
     [SerializeField] private float _nextCardOffsetY = 2.5f;
     [SerializeField] private float _nextCardOffsetZ = -0.05f;
 
-    public Card AddCard(CardSO cardSO, int cardCount) {
+    public Card AddCard(CardSO cardSO, int cardCount, GameManager.GameAction actionType) {
         // Calculate new position.
-        Vector3 newCardPos = new((cardCount-1) * _nextCardOffsetX, (cardCount - 1) * _nextCardOffsetY, (cardCount - 1) * _nextCardOffsetZ);
+        Vector3 newCardLocalPos = new((cardCount-1) * _nextCardOffsetX, (cardCount - 1) * _nextCardOffsetY, (cardCount - 1) * _nextCardOffsetZ);
+
+        //Vector3 newCardWorldPos = _cardsParentTransform.TransformPoint(newCardLocalPos);
 
         // Create new card.
         GameObject newCard = Instantiate(cardSO.Prefab);
-
-        newCard.transform.SetParent(_cardsParentTransform, false);
-        newCard.transform.localPosition = newCardPos;
-
         Card newCardScript = newCard.GetComponent<Card>();
+
+        // Set parent.
+        newCard.transform.SetParent(_cardsParentTransform, false);
+
+        // If the action is double down, rotate the card 90 degrees in Z and add additional offset
+        if (actionType == GameManager.GameAction.DoubleDown) {
+            newCardLocalPos += _doubleDownCardAddOffset;
+            newCard.transform.eulerAngles = new Vector3(0, 0, 90);
+        }
+
+        newCard.transform.localPosition = newCardLocalPos;
+        //// Start animating.
+        //newCardScript.Visuals.Animator.StartDrawingAnimation(Shoe.Instance.transform.position, newCardWorldPos, newCard.transform.position);
 
         return newCardScript;
     }

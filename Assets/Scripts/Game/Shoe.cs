@@ -9,6 +9,19 @@ public class Shoe : MonoBehaviour
     [SerializeField] private int _numberOfDecks = 2;
 
     private List<CardSO> _currentShoe;
+    private static Shoe _instance;
+
+    public static Shoe Instance {
+        get => _instance;
+    }
+
+    private void Awake() {
+        if (_instance != null) {
+            Destroy(_instance);
+            _instance = null;
+        }
+        _instance = this;
+    }
 
     public int NumberOfDecks {
         get => _numberOfDecks;

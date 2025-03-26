@@ -21,12 +21,12 @@ public class PlayerHand : MonoBehaviour
         get => _score;
     }
 
-    public void AddCard(CardSO cardSO) {
+    public void AddCard(CardSO cardSO, GameManager.GameAction actionType) {
         _cards ??= new();
         _1ValueAces ??= new();
 
         _cards.Add(cardSO);
-        _visuals.AddCard(cardSO, _cards.Count);
+        _visuals.AddCard(cardSO, _cards.Count, actionType);
 
         HandleScore(cardSO.Value);
     }
@@ -96,8 +96,6 @@ public class PlayerHand : MonoBehaviour
         avaliableActions.Add(GameManager.GameAction.Stand);
 
         // What can a player do with this hand?
-        // Split requirements - 2 cards with the same value.
-        // Double down requirements - 2 cards.
         if (_cards.Count == 2) {
             avaliableActions.Add(GameManager.GameAction.DoubleDown);
 

@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class HandsManager : MonoBehaviour
 {
     [SerializeField] private HandsVisualManager _visuals;
     [SerializeField] private DealerHand _dealerHand;
-    [SerializeField][Range(1, 3)] private int _playerHandCount = 3;
+    [SerializeField][Range(1, 6)] private int _playerHandCount = 3;
 
     private List<PlayerHand> _playerHands;
     private PlayerHand _currPlayerHand;
@@ -26,7 +27,9 @@ public class HandsManager : MonoBehaviour
         _playerHands = _visuals.CreateNewHands(_playerHands, _playerHandCount);
     }
 
-    public void SplitHand(PlayerHand playerHand) {
+    public async Task SplitHand(PlayerHand playerHand, int delayBetweenCards) {
+        await Task.Delay(delayBetweenCards);
+
         // Set index+1 for every hand that comes after playerHand
         for (int i=_playerHands.Count-1; i>=playerHand.Index+1; i--) {
             PlayerHand hand = _playerHands.Find(playerHand => playerHand.Index == i);
@@ -45,7 +48,7 @@ public class HandsManager : MonoBehaviour
         _visuals.SetPlayerHandIndex(newPlayerHand);
         
         // Move second card to new hand
-        newPlayerHand.AddCard(playerHand.GetCard(1));
+        newPlayerHand.AddCard(playerHand.GetCard(1), GameManager.GameAction.Split);
         playerHand.RemoveCard(1);
 
         _currPlayerHand = playerHand;

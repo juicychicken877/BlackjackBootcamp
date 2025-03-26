@@ -10,115 +10,72 @@ public class GameManager : MonoBehaviour
         Hit,
         Stand,
         DoubleDown,
-        Split
+        Split,
+        None
     }
 
-    public delegate void Callback();
+    public delegate void ActionHandler();
 
     private void Awake() {
-        _visuals.ActionBtnClicked += HandleGameAction;
+        _visuals.ActionBtnClicked += HandleGameActionAsync;
         _visuals.NextRoundBtnClicked += NextRound;
     }
 
-    private void HandleGameAction(object sender, GameVisualManager.ActionBtnClickedEventArgs e) {
+    private async void HandleGameActionAsync(object sender, GameVisualManager.ActionBtnClickedEventArgs e) {
         GameAction gameAction = e.action;
+
+        _visuals.SetActionButtons(false);
 
         switch (gameAction) {
             case GameAction.Hit: {
-                // Action
-                _dealer.HandleHit(_handsManager.CurrPlayerHand, () => {
+                await _dealer.HandleHitAsync(_handsManager.CurrPlayerHand, () => {
                     // Function called when a player busts a hand.
                     _handsManager.NextHand();
                 });
 
-                // Next player hand.
-                if (_handsManager.CurrPlayerHand != null) {
-                    // If it was splitted - CurrPlayerHand doesnt have 2nd card
-                    if (_handsManager.CurrPlayerHand.GetCard(1) == null) {
-                        _dealer.HandleHit(_handsManager.CurrPlayerHand, null);
-                    }
-
-                    _visuals.SetActionButtons(_handsManager.CurrPlayerHand.GetAvaliableGameActions());
-                } else {
-                    // Dealer turn.
-                    _visuals.SetActionButtons(false);
-
-                    _dealer.DrawUntil17(_handsManager.DealerHand, () => {
-                        // Function called when drawing ends.
-                        _visuals.SetNextRoundBtn(true);
-                    });
-                }
+                AfterGameAction();
             }
             break;
             case GameAction.Stand: {
-                // Action
                 _handsManager.NextHand();
 
-                // Next player hand.
-                if (_handsManager.CurrPlayerHand != null) {
-                    // If it was splitted - CurrPlayerHand doesnt have 2nd card
-                    if (_handsManager.CurrPlayerHand.GetCard(1) == null) {
-                        _dealer.HandleHit(_handsManager.CurrPlayerHand, null);
-                    }
-
-                    _visuals.SetActionButtons(_handsManager.CurrPlayerHand.GetAvaliableGameActions());
-                } else {
-                    // Dealer's turn
-                    _visuals.SetActionButtons(false);
-
-                    _dealer.DrawUntil17(_handsManager.DealerHand, () => {
-                        // Function called when drawing ends.
-                        _visuals.SetNextRoundBtn(true);
-                    });
-                }
+                AfterGameAction();
             }
             break;
             case GameAction.Split: {
-                // Split hand
-                _handsManager.SplitHand(_handsManager.CurrPlayerHand);
+                await _handsManager.SplitHand(_handsManager.CurrPlayerHand, _dealer.DelayBetweenCardsMiliseconds);
 
-                // Hit first hand
-                _dealer.HandleHit(_handsManager.CurrPlayerHand, null);
-
-                // Show avaliable game actions
-                _visuals.SetActionButtons(_handsManager.CurrPlayerHand.GetAvaliableGameActions());
+                AfterGameAction();
             }
             break;
             case GameAction.DoubleDown: {
-                // Action
-                _dealer.HandleDoubleDown(_handsManager.CurrPlayerHand);
-                _handsManager.NextHand();
+                bool busted = false;
 
-                // Next player hand.
-                if (_handsManager.CurrPlayerHand != null) {
-                    // If it was splitted - CurrPlayerHand doesnt have 2nd card
-                    if (_handsManager.CurrPlayerHand.GetCard(1) == null) {
-                        _dealer.HandleHit(_handsManager.CurrPlayerHand, null);
-                    }
+                await _dealer.HandleDoubleDownAsync(_handsManager.CurrPlayerHand, () => {
+                    // Function called when a player busts a hand.
+                    _handsManager.NextHand();
+                    busted = true;
+                });
 
-                    _visuals.SetActionButtons(_handsManager.CurrPlayerHand.GetAvaliableGameActions());
-                } else {
-                    // Dealer turn.
-                    _visuals.SetActionButtons(false);
+                if (!busted) _handsManager.NextHand();
 
-                    _dealer.DrawUntil17(_handsManager.DealerHand, () => {
-                        // Function called when drawing ends.
-                        _visuals.SetNextRoundBtn(true);
-                    });
-                }
+                AfterGameAction();
             }
             break;
         }
     }
 
-    private void NextRound(object sender, System.EventArgs e) {
+    private async void NextRound(object sender, System.EventArgs e) {
         _visuals.SetNextRoundBtn(false);
 
         _handsManager.NewHands();
 
-        _dealer.DealFirstCards(_handsManager.PlayerHands, _handsManager.DealerHand, () => { AfterFirstCards(); });
+        await _dealer.DealFirstCardsAsync(_handsManager.PlayerHands, _handsManager.DealerHand);
+
+        AfterFirstCards();
     }
 
+    // Method invoked after dealing the intiial hands (set of 2 cards).
     private void AfterFirstCards() {
         // Check for blackjack
         if (_handsManager.DealerHand.HasBlackjack()) {
@@ -130,6 +87,26 @@ public class GameManager : MonoBehaviour
             _handsManager.NextHand();
 
             _visuals.SetActionButtons(_handsManager.CurrPlayerHand.GetAvaliableGameActions());
+        }
+    }
+
+    // Method invoked after hitting, standing, splitting or doubling down.
+    private async void AfterGameAction() {
+        // Next player hand.
+        if (_handsManager.CurrPlayerHand != null) {
+            // If it was splitted - CurrPlayerHand doesnt have 2nd card.
+            if (_handsManager.CurrPlayerHand.GetCard(1) == null) {
+                await _dealer.HandleHitAsync(_handsManager.CurrPlayerHand, null);
+            }
+
+            _visuals.SetActionButtons(_handsManager.CurrPlayerHand.GetAvaliableGameActions());
+        } else {
+            // Dealer turn.
+            _visuals.SetActionButtons(false);
+
+            await _dealer.DrawUntil17Async(_handsManager.DealerHand);
+
+            _visuals.SetNextRoundBtn(true);
         }
     }
 
