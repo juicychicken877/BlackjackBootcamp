@@ -14,6 +14,10 @@ public class DealerHand : MonoBehaviour
         get => _score;
     }
 
+    public DealerHandVisual Visuals {
+        get => _visuals;
+    }
+
     public void AddCard(CardSO cardSO, bool hidden) {
         _cards ??= new();
         _1ValueAces ??= new();
@@ -48,6 +52,14 @@ public class DealerHand : MonoBehaviour
         } else {
             return false;
         }
+    }
+
+    public bool HasAceFront() {
+        if (_cards[0] != null) {
+            return _cards[0].IsAce;
+        }
+
+        return false;
     }
 
     public void ShowHiddenCard() {

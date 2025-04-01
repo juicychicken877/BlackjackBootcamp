@@ -30,3 +30,10 @@
     border-bottom-width: 3px;
     border-left-width: 3px;
 }
+
+.menu-button-selected {
+    border-left-color: rgba(76, 233, 76, 0.33);
+    border-right-color: rgba(76, 233, 76, 0.33);
+    border-top-color: rgba(76, 233, 76, 0.33);
+    border-bottom-color: rgba(76, 233, 76, 0.33);
+}

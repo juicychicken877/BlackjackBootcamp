@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
+using BlackjackNamespace;
 
 public class PlayerHand : MonoBehaviour
 {
     [SerializeField] private PlayerHandVisual _visuals;
+    [SerializeField] private ChipField _chipField;
 
     private List<CardSO> _cards;
     // A list of aces which value has been decreased to 1
@@ -21,7 +23,15 @@ public class PlayerHand : MonoBehaviour
         get => _score;
     }
 
-    public void AddCard(CardSO cardSO, GameManager.GameAction actionType) {
+    public PlayerHandVisual Visuals {
+        get => _visuals;
+    }
+
+    public ChipField ChipField {
+        get => _chipField;
+    }
+
+    public void AddCard(CardSO cardSO, GameAction actionType) {
         _cards ??= new();
         _1ValueAces ??= new();
 
@@ -54,13 +64,16 @@ public class PlayerHand : MonoBehaviour
         }
     }
 
-    public void Clear() {
-        _cards?.Clear();
-        _1ValueAces?.Clear();
-
-        _score = 0;
-        _visuals.UpdateScore(_score);
-        _visuals.Clear();
+    public bool HasBlackjack() {
+        if (_cards.Count == 2) {
+            if ((_cards[0].IsAce && _cards[1].Value == 10) || (_cards[0].Value == 10 && _cards[1].IsAce)) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     private void HandleScore(int cardValue) {
@@ -80,27 +93,18 @@ public class PlayerHand : MonoBehaviour
         _visuals.UpdateScore(_score);
     }
 
-    public void SetHandActive(bool active) {
-        _visuals.SetHandActive(active);
-    }
-
-    public List<GameManager.GameAction> GetAvaliableGameActions() {
-        List<GameManager.GameAction> avaliableActions = new();
-
-        if (_cards.Count < 2) {
-            return avaliableActions;
-        }
-
+    public List<GameAction> GetAvaliableGameActions() {
         // Player can always hit and stand.
-        avaliableActions.Add(GameManager.GameAction.Hit);
-        avaliableActions.Add(GameManager.GameAction.Stand);
+        List<GameAction> avaliableActions = new() {
+            GameAction.Hit,
+            GameAction.Stand
+        };
 
-        // What can a player do with this hand?
         if (_cards.Count == 2) {
-            avaliableActions.Add(GameManager.GameAction.DoubleDown);
+            avaliableActions.Add(GameAction.DoubleDown);
 
             if (_cards[0].Value == _cards[1].Value) {
-                avaliableActions.Add(GameManager.GameAction.Split);
+                avaliableActions.Add(GameAction.Split);
             }
         }
 

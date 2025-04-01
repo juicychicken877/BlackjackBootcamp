@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
-
+using BlackjackNamespace;
 public class HandsManager : MonoBehaviour
 {
     [SerializeField] private HandsVisualManager _visuals;
@@ -44,19 +44,24 @@ public class HandsManager : MonoBehaviour
         newPlayerHand.Index = playerHand.Index + 1;
         _playerHands.Insert(newPlayerHand.Index, newPlayerHand);
 
+        ChipManager.Instance.HandleSplit(newPlayerHand, playerHand);
+
         // Set order
         _visuals.SetPlayerHandIndex(newPlayerHand);
-        
+
+        await Task.Delay(delayBetweenCards);
+
         // Move second card to new hand
-        newPlayerHand.AddCard(playerHand.GetCard(1), GameManager.GameAction.Split);
+        newPlayerHand.AddCard(playerHand.GetCard(1), GameAction.Split);
         playerHand.RemoveCard(1);
+
 
         _currPlayerHand = playerHand;
     }
 
     public void NextHand() {
         // Set previous hand inactive.
-        if (_currPlayerHand != null) _currPlayerHand.SetHandActive(false);
+        if (_currPlayerHand != null) _currPlayerHand.Visuals.SetHandActive(false);
 
         if (_currPlayerHand == null) {
             _currPlayerHand = _playerHands[0];
@@ -69,10 +74,30 @@ public class HandsManager : MonoBehaviour
             }
         }
 
+        // If chip count of current hand is 0 then go to next one.
+        if (_currPlayerHand != null && _currPlayerHand.ChipField.ChipCount == 0) 
+            NextHand();
+
         // Set current hand active.
         if (_currPlayerHand != null) {
-            _currPlayerHand.SetHandActive(true);
+            _currPlayerHand.Visuals.SetHandActive(true);
         }
     }
 
+    public void DisableBetting() {
+        foreach (var hand in _playerHands) {
+            hand.ChipField.Visuals.ChangeActionBtnsActive(false);
+            hand.ChipField.Visuals.DisableInteractions();
+        }
+    }
+
+    // Get the number of hands with money in chip fields.
+    public List<PlayerHand> GetPlayingHands() {
+        List<PlayerHand> playingHands = new();
+
+        foreach (var hand in _playerHands) {
+            if (hand.ChipField.ChipCount > 0) playingHands.Add(hand);
+        }
+        return playingHands;
+    }
 }
