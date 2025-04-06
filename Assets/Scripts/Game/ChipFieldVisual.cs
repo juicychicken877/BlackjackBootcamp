@@ -29,7 +29,7 @@ public class ChipFieldVisual : MonoBehaviour
         });
     }
 
-    public void UpdateVisuals(int chipCount) {
+    public void UpdateVisuals(float chipCount) {
         if (chipCount == 0) {
             _chipCountText.text = "";
 

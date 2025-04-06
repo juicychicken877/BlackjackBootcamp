@@ -6,4 +6,11 @@ namespace BlackjackNamespace {
         Split,
         None
     }
+
+    public enum HandState {
+        Inactive,
+        Active,
+        Lost,
+        Won
+    }
 }

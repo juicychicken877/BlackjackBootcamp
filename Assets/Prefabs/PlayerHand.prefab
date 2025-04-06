@@ -1171,10 +1171,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _cardsParentTransform: {fileID: 4597051137692542017}
-  _activeCircle: {fileID: 7957712078163861609}
-  _activeSprite: {fileID: 21300000, guid: a35b151eea1c2de43a63764c264c1d01, type: 3}
-  _inactiveSprite: {fileID: -6730131971551496749, guid: b4ee08a45d90f694fbcc859e346285ce, type: 3}
   _scoreText: {fileID: 4637402114483526712}
+  _activeCircle: {fileID: 7957712078163861609}
+  _blueCircle: {fileID: 21300000, guid: f743ae65363a58b4bb63d471b4978b1a, type: 3}
+  _greenCircle: {fileID: 21300000, guid: a35b151eea1c2de43a63764c264c1d01, type: 3}
+  _redCircle: {fileID: 21300000, guid: eef18d33c7eb7c64cb92f40f54a334b0, type: 3}
+  _grayCircle: {fileID: -6730131971551496749, guid: b4ee08a45d90f694fbcc859e346285ce, type: 3}
+  _currVisualState: 0
   _doubleDownCardAddOffset: {x: 1, y: 0, z: 0}
   _nextCardOffsetX: 1.5
   _nextCardOffsetY: 2.5

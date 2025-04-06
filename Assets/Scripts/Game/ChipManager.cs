@@ -7,12 +7,14 @@ using UnityEngine.UIElements;
 public class ChipManager : MonoBehaviour
 {
     [SerializeField] private ChipVisualManager _visuals;
-    [SerializeField] private int _balance = 1000;
+    [SerializeField] private float _balance = 1000;
 
     private static ChipManager s_instance;
 
     public delegate void ChipFieldClickHandler(ChipField chipField);
-    public delegate void ChipReturnHandler(ChipField chipField, int chipsToReturn);
+    public delegate void TakeInsuranceHandler(InsuranceChoice insuranceChoice);
+
+    public delegate void ChipReturnHandler(IChipHolder chipHolder, float chipsToReturn);
 
     public ChipVisualManager Visuals {
         get => _visuals;
@@ -22,7 +24,7 @@ public class ChipManager : MonoBehaviour
         get => s_instance;
     }
 
-    public int Balance {
+    public float Balance {
         get => _balance;
     }
 
@@ -33,13 +35,36 @@ public class ChipManager : MonoBehaviour
         }
         s_instance = this;
 
-        _visuals.UpdateVisuals(_balance);
+        _visuals.UpdateBalance(_balance);
     }
 
     public void SetChipFieldHandlers(List<PlayerHand> playerHands) {
         foreach (var hand in playerHands) {
             hand.ChipField.ClickHandler = ChipFieldClick;
             hand.ChipField.ChipReturnHandler = ReturnChips;
+        }
+    }
+
+    public void SetInsuranceHandlers(List<InsuranceChoice> insuranceChoices) {
+        foreach (var insuranceChoice in insuranceChoices) {
+            insuranceChoice.TakeInsuranceHandler = InsureHand;
+            insuranceChoice.ReturnHandler = ReturnChips;
+        }
+    }
+
+    private void InsureHand(InsuranceChoice insuranceChoice) {
+        // Can afford insurance.
+        if (CanAffordChips(insuranceChoice.InsuranceValue)) {
+            insuranceChoice.AddChips(insuranceChoice.InsuranceValue);
+
+            _balance -= insuranceChoice.InsuranceValue;
+
+            // Change visuals.
+            _visuals.UpdateBalance(_balance);
+            insuranceChoice.ChangeInsured(true);
+        } else {
+            // Cannot afford insurance
+            insuranceChoice.ChangeInsured(false);
         }
     }
 
@@ -54,12 +79,16 @@ public class ChipManager : MonoBehaviour
 
                 _balance -= chipValue;
 
-                _visuals.UpdateVisuals(_balance);
+                _visuals.UpdateBalance(_balance);
             }
         }
     }
 
-    private bool CanAffordChips(int chip) {
+    public float GetInsuranceValue(PlayerHand hand) {
+        return hand.ChipField.ChipCount / 2;
+    }
+
+    private bool CanAffordChips(float chip) {
         return _balance >= chip;
     }
 
@@ -75,7 +104,7 @@ public class ChipManager : MonoBehaviour
 
     // Double the amount of chips in chip field.
     public void HandleDoubleDown(PlayerHand playerHand) {
-        int handValue = playerHand.ChipField.ChipCount;
+        float handValue = playerHand.ChipField.ChipCount;
         playerHand.ChipField.AddChips(handValue);
 
         _balance -= handValue;
@@ -83,7 +112,7 @@ public class ChipManager : MonoBehaviour
 
     // Place chips at the new hands' chip field.
     public void HandleSplit(PlayerHand newHand, PlayerHand initialHand) {
-        int handValue = initialHand.ChipField.ChipCount;
+        float handValue = initialHand.ChipField.ChipCount;
 
         newHand.ChipField.AddChips(handValue);
 
@@ -92,50 +121,60 @@ public class ChipManager : MonoBehaviour
 
     // Blackjack ratio percent means e.g 3 to 2 (150% = 1.5), 6 to 5 (120% = 1.2)
     public void HandleBlackjack(PlayerHand playerHand, float blackjackRatioPercent) {
-        float blackjackValue = playerHand.ChipField.ChipCount * blackjackRatioPercent;
-
-        Debug.Log($"Blackjack! {blackjackValue} chips won!");
+        int blackjackValue = Convert.ToInt32(playerHand.ChipField.ChipCount * blackjackRatioPercent);
 
         // Add the offset.
-        playerHand.ChipField.AddChips(playerHand.ChipField.ChipCount - Convert.ToInt32(blackjackValue));
+        playerHand.ChipField.AddChips(blackjackValue);
 
-        // Add winnings to balance.
-        ReturnChips(playerHand.ChipField, playerHand.ChipField.ChipCount);
+        playerHand.Visuals.UpdateVisuals(HandState.Won);
     }
 
     // Give chips 1 to 1.
     public void HandleWin(PlayerHand playerHand) {
         playerHand.ChipField.AddChips(playerHand.ChipField.ChipCount);
 
-        Debug.Log($"{playerHand.ChipField.ChipCount} chips won!");
+        playerHand.Visuals.UpdateVisuals(HandState.Won);
+    }
 
-        // Add winnings to balance.
-        ReturnChips(playerHand.ChipField, playerHand.ChipField.ChipCount);
+    public void HandleGameResults(List<PlayerHand> hands, DealerHand dealerHand) {
+        foreach (var hand in hands) {
+            // If not busted.
+            if (hand.ChipField.ChipCount > 0) {
+                // Win
+                if (hand.Score > dealerHand.Score || dealerHand.Score > 21) {
+                    HandleWin(hand);
+                }
+                // Loss
+                else if (hand.Score < dealerHand.Score) {
+                    HandleLoss(hand);
+                }
+            }
+        }
     }
 
     // Take chips from field.
     public void HandleLoss(PlayerHand playerHand) {
-        Debug.Log($"{playerHand.ChipField.ChipCount} chips lost!");
-
         playerHand.ChipField.ClearChips();
+
+        playerHand.Visuals.UpdateVisuals(HandState.Lost);
     }
 
-    public void HandlePush(PlayerHand playerHand) {
-        Debug.Log($"Push");
-
-        ReturnChips(playerHand.ChipField, playerHand.ChipField.ChipCount);
+    public void CollectAllChips(List<PlayerHand> hands) {
+        foreach (var hand in hands) {
+            ReturnChips(hand.ChipField, hand.ChipField.ChipCount);
+        }
     }
 
-    private void ReturnChips(ChipField chipField, int chipCount) {
-        _balance += chipCount;
+    private void ReturnChips(IChipHolder chipHolder, float amount) {
+        _balance += amount;
 
         // If returned all chips.
-        if (chipField.ChipCount == chipCount) {
-            chipField.ClearChips();
+        if (chipHolder.ChipCount == amount) {
+            chipHolder.ClearChips();
         } else {
-            chipField.PopChips();
+            chipHolder.PopChips();
         }
 
-        _visuals.UpdateVisuals(_balance);
+        _visuals.UpdateBalance(_balance);
     }
 }

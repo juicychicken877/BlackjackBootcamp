@@ -669,7 +669,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _visuals: {fileID: 526004698}
-  _balance: 10000
+  _balance: 1000
 --- !u!1 &549309060
 GameObject:
   m_ObjectHideFlags: 0
@@ -1560,7 +1560,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5cd9eaac6ed0944bb08d7ebff173e01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _insuranceBetBtnSetPrefab: {fileID: 230399691070336343, guid: 0386c23877c04714f8511fa3d157f745, type: 3}
+  _insuranceChoicePrefab: {fileID: 2184816563984630244, guid: d9d3346ea2fe8d2419721b6312209133, type: 3}
+  _canvas: {fileID: 2117121908}
   _btnSetPos: {fileID: 1990649690}
   _closeBetsBtn: {fileID: 141517577}
 --- !u!114 &1220822763

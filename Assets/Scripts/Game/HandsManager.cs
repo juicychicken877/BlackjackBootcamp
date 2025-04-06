@@ -11,6 +11,10 @@ public class HandsManager : MonoBehaviour
     private List<PlayerHand> _playerHands;
     private PlayerHand _currPlayerHand;
 
+    // Hands that match the rules of the game.
+    public List<PlayerHand> PlayingHands {
+        get => _playerHands.FindAll(hand => hand.ChipField.ChipCount > 0);
+    }
     public List<PlayerHand> PlayerHands {
         get => _playerHands;
     }
@@ -25,6 +29,8 @@ public class HandsManager : MonoBehaviour
         _dealerHand.Clear();
 
         _playerHands = _visuals.CreateNewHands(_playerHands, _playerHandCount);
+
+        ChipManager.Instance.SetChipFieldHandlers(_playerHands);
     }
 
     public async Task SplitHand(PlayerHand playerHand, int delayBetweenCards) {
@@ -61,26 +67,25 @@ public class HandsManager : MonoBehaviour
 
     public void NextHand() {
         // Set previous hand inactive.
-        if (_currPlayerHand != null) _currPlayerHand.Visuals.SetHandActive(false);
+        if (_currPlayerHand != null && _currPlayerHand.Visuals.CurrVisualState == HandState.Active) {
+            _currPlayerHand.Visuals.UpdateVisuals(HandState.Inactive);
+        }
 
         if (_currPlayerHand == null) {
-            _currPlayerHand = _playerHands[0];
+            _currPlayerHand = PlayingHands[0];
         } else {
+            int currPlayerHandIndex = PlayingHands.IndexOf(_currPlayerHand);
             // All player hands were played.
-            if (_currPlayerHand.Index == _playerHands.Count - 1) {
+            if (currPlayerHandIndex == PlayingHands.Count - 1) {
                 _currPlayerHand = null;
             } else {
-                _currPlayerHand = _playerHands[_currPlayerHand.Index + 1];
+                _currPlayerHand = PlayingHands[currPlayerHandIndex + 1];
             }
         }
 
-        // If chip count of current hand is 0 then go to next one.
-        if (_currPlayerHand != null && _currPlayerHand.ChipField.ChipCount == 0) 
-            NextHand();
-
         // Set current hand active.
         if (_currPlayerHand != null) {
-            _currPlayerHand.Visuals.SetHandActive(true);
+            _currPlayerHand.Visuals.UpdateVisuals(HandState.Active);
         }
     }
 
@@ -89,15 +94,5 @@ public class HandsManager : MonoBehaviour
             hand.ChipField.Visuals.ChangeActionBtnsActive(false);
             hand.ChipField.Visuals.DisableInteractions();
         }
-    }
-
-    // Get the number of hands with money in chip fields.
-    public List<PlayerHand> GetPlayingHands() {
-        List<PlayerHand> playingHands = new();
-
-        foreach (var hand in _playerHands) {
-            if (hand.ChipField.ChipCount > 0) playingHands.Add(hand);
-        }
-        return playingHands;
     }
 }

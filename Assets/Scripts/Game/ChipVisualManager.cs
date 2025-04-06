@@ -46,12 +46,20 @@ public class ChipVisualManager : MonoBehaviour
         }
     }
 
-    public void SetChipMenu(bool enabled) {
+    public void UpdateChipMenu(bool enabled) {
         _currSelectedBtn?.RemoveFromClassList(_btnSelectedClassName);
         _currSelectedBtn = null;
 
         foreach (Button btn in _chipMenuBtns) {
             btn.SetEnabled(enabled);
+        }
+    }
+
+    public void UpdateChipMenu(float balance) {
+        foreach (Button btn in _chipMenuBtns) {
+            float btnValue = (float)Convert.ToDouble(btn.text);
+
+            btn.SetEnabled(balance >= btnValue);
         }
     }
 
@@ -63,14 +71,7 @@ public class ChipVisualManager : MonoBehaviour
         _currSelectedBtn = btn;
     }
 
-    public void UpdateVisuals(int balance) {
-        // Update buttons.
-        foreach (Button btn in _chipMenuBtns) {
-            int btnValue = Convert.ToInt32(btn.text);
-
-            btn.SetEnabled(balance >= btnValue);
-        }
-
+    public void UpdateBalance(float balance) {
         // Update balance label.
         _balanceLabel.text = $"Balance: {balance}";
     }

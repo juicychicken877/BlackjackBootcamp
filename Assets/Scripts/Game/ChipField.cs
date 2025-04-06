@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ChipField : MonoBehaviour
+public class ChipField : MonoBehaviour, IChipHolder
 {
     [SerializeField] private ChipFieldVisual _visuals;
 
-    private Stack<int> _chipStack;
-    private int _chipCount;
+    private Stack<float> _chipStack;
+    private float _chipCount;
 
     public ChipManager.ChipFieldClickHandler ClickHandler;
     public ChipManager.ChipReturnHandler ChipReturnHandler;
 
-    public int ChipCount {
+    public float ChipCount {
         get => _chipCount;
     }
 
@@ -39,7 +39,7 @@ public class ChipField : MonoBehaviour
         };
     }
 
-    public void AddChips(int chips) {
+    public void AddChips(float chips) {
         _chipStack ??= new();
 
         _chipCount += chips;

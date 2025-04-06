@@ -9,15 +9,24 @@ using BlackjackNamespace;
 public class PlayerHandVisual : MonoBehaviour
 {
     [SerializeField] private Transform _cardsParentTransform;
-    [Tooltip("A circle or UI element that indicates that this hand is now currently played")]
-    [SerializeField] private SpriteRenderer _activeCircle;
-    [SerializeField] private Sprite _activeSprite;
-    [SerializeField] private Sprite _inactiveSprite;
     [SerializeField] private TextMeshProUGUI _scoreText;
+    [Tooltip("Visuals indicating the state of a hand")]
+    [SerializeField] private SpriteRenderer _activeCircle;
+    [SerializeField] private Sprite _blueCircle;
+    [SerializeField] private Sprite _greenCircle;
+    [SerializeField] private Sprite _redCircle;
+    [SerializeField] private Sprite _grayCircle;
+    [SerializeField] private HandState _currVisualState;
+    [Tooltip("Offsets for card object placing")]
     [SerializeField] private Vector3 _doubleDownCardAddOffset;
     [SerializeField] private float _nextCardOffsetX = 1.5f;
     [SerializeField] private float _nextCardOffsetY = 2.5f;
     [SerializeField] private float _nextCardOffsetZ = -0.05f;
+
+    public HandState CurrVisualState {
+        get => _currVisualState;
+    }
+
 
     public Card AddCard(CardSO cardSO, int cardCount, GameAction actionType) {
         // Calculate new position.
@@ -56,9 +65,25 @@ public class PlayerHandVisual : MonoBehaviour
         }
     }
 
-    public void SetHandActive(bool active) {
-        _activeCircle.sprite = active ? _activeSprite : _inactiveSprite;
+    public void UpdateVisuals(HandState handState) {
+        switch (handState) {
+            case HandState.Active: {
+                _activeCircle.sprite = _blueCircle;
+            } break;
+            case HandState.Won: {
+                _activeCircle.sprite = _greenCircle;
+            } break;
+            case HandState.Inactive: {
+                _activeCircle.sprite = _grayCircle;
+            } break;
+            case HandState.Lost: {
+                _activeCircle.sprite = _redCircle;
+            } break;
+        }
+
+        _currVisualState = handState;
     }
+
     public void UpdateScore(int score) {
         if (score == 0) {
             _scoreText.text = "";
