@@ -11,8 +11,13 @@ public class PlayerHand : MonoBehaviour
     // A list of aces which value has been decreased to 1
     private List<CardSO> _1ValueAces;
 
+    public HandState _state;
     private int _index;
     private int _score;
+
+    public HandState State {
+        get => _state;
+    }
 
     public int Index {
         get => _index;
@@ -62,6 +67,11 @@ public class PlayerHand : MonoBehaviour
         } else {
             return _cards[index];
         }
+    }
+
+    public void ChangeState(HandState newState) {
+        _state = newState;
+        _visuals.UpdateVisuals(newState);
     }
 
     public bool HasBlackjack() {

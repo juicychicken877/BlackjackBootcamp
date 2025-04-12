@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      jack_of_hearts_0: -8732203509307180427
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

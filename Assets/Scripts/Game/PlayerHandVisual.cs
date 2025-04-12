@@ -16,17 +16,11 @@ public class PlayerHandVisual : MonoBehaviour
     [SerializeField] private Sprite _greenCircle;
     [SerializeField] private Sprite _redCircle;
     [SerializeField] private Sprite _grayCircle;
-    [SerializeField] private HandState _currVisualState;
     [Tooltip("Offsets for card object placing")]
     [SerializeField] private Vector3 _doubleDownCardAddOffset;
     [SerializeField] private float _nextCardOffsetX = 1.5f;
     [SerializeField] private float _nextCardOffsetY = 2.5f;
     [SerializeField] private float _nextCardOffsetZ = -0.05f;
-
-    public HandState CurrVisualState {
-        get => _currVisualState;
-    }
-
 
     public Card AddCard(CardSO cardSO, int cardCount, GameAction actionType) {
         // Calculate new position.
@@ -80,8 +74,6 @@ public class PlayerHandVisual : MonoBehaviour
                 _activeCircle.sprite = _redCircle;
             } break;
         }
-
-        _currVisualState = handState;
     }
 
     public void UpdateScore(int score) {

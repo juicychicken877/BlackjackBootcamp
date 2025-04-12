@@ -12,6 +12,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private ChipManager _chipManager;
     [SerializeField] private InsuranceBet _insuranceBet;
 
+    private GameSettings _gameSettings;
+
     public delegate void ActionHandler();
 
     private void Awake() {
@@ -22,6 +24,11 @@ public class GameManager : MonoBehaviour
         _insuranceBet.EndOfInsuranceBet += (sender, e) => {
             ResolveInsuranceBet();
         };
+
+        // Set new game settings.
+        NewGameSettings(new(
+            true
+        ));
     }
 
     private async void HandleGameActionAsync(object sender, GameVisualManager.ActionBtnClickedEventArgs e) {
@@ -91,8 +98,11 @@ public class GameManager : MonoBehaviour
     }
 
     private async void DealCards(object sender, System.EventArgs e) {
+        // Playing hands are those with money in chip fields (Optional).
+        List<PlayerHand> playingHands = _handsManager.PlayerHands.FindAll(hand => hand.ChipField.ChipCount > 0);
+
         // No money in chip fields.
-        if (_handsManager.PlayingHands.Count == 0) {
+        if (playingHands.Count == 0) {
             return;
         }
 
@@ -102,7 +112,7 @@ public class GameManager : MonoBehaviour
         _handsManager.DisableBetting();
 
         // Deal and start game.
-        await _dealer.DealFirstCardsAsync(_handsManager.PlayingHands, _handsManager.DealerHand);
+        await _dealer.DealFirstCardsAsync(playingHands, _handsManager.DealerHand);
 
         AfterFirstCards();
     }
@@ -126,14 +136,14 @@ public class GameManager : MonoBehaviour
     // Method invoked after dealing the initial hands (set of 2 cards).
     private async void AfterFirstCards() {
         if (_handsManager.DealerHand.HasAceFront()) {
-            _insuranceBet.StartInsuranceBet(_handsManager.PlayingHands);
+            _insuranceBet.StartInsuranceBet(_handsManager.PlayerHands);
         } else {
             // Check for dealer's blackjack (10 front).
             if (_handsManager.DealerHand.HasBlackjack()) {
                 _handsManager.DealerHand.ShowHiddenCard();
 
                 // Handle losses.
-                foreach (var hand in _handsManager.PlayingHands) {
+                foreach (var hand in _handsManager.PlayerHands) {
                     _chipManager.HandleLoss(hand);
                 }
 
@@ -174,7 +184,7 @@ public class GameManager : MonoBehaviour
             // Dealer turn.
             _visuals.SetActionBtns(false);
 
-            List<PlayerHand> handsLeft = _handsManager.PlayingHands.FindAll(hand => hand.Visuals.CurrVisualState == HandState.Inactive);
+            List<PlayerHand> handsLeft = _handsManager.PlayerHands.FindAll(hand => hand.State == HandState.Inactive);
 
             if (handsLeft.Count > 0) {
                 await _dealer.DrawUntil17Async(_handsManager.DealerHand);
@@ -183,10 +193,14 @@ public class GameManager : MonoBehaviour
                 _handsManager.DealerHand.ShowHiddenCard();
             }
 
-            _chipManager.HandleGameResults(_handsManager.PlayingHands, _handsManager.DealerHand);
+            _chipManager.HandleGameResults(_handsManager.PlayerHands, _handsManager.DealerHand);
 
             _visuals.SetNextRoundBtn(true);
         }
+    }
+
+    public void NewGameSettings(GameSettings newGameSettings) {
+        _gameSettings = newGameSettings;
     }
 
 }

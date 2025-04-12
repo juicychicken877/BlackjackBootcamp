@@ -54,7 +54,7 @@ public class InsuranceBet : MonoBehaviour
         foreach (var set in uninsuredSets) {
             set.InsuranceChoice.ClearChips();
             set.PlayerHand.ChipField.ClearChips();
-            set.PlayerHand.Visuals.UpdateVisuals(HandState.Lost);
+            set.PlayerHand.ChangeState(HandState.Lost);
         }
     }
 

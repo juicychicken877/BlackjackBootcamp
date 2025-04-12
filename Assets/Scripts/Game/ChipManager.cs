@@ -108,15 +108,18 @@ public class ChipManager : MonoBehaviour
         playerHand.ChipField.AddChips(handValue);
 
         _balance -= handValue;
+
+        _visuals.UpdateBalance(_balance);
     }
 
     // Place chips at the new hands' chip field.
     public void HandleSplit(PlayerHand newHand, PlayerHand initialHand) {
         float handValue = initialHand.ChipField.ChipCount;
-
         newHand.ChipField.AddChips(handValue);
 
         _balance -= handValue;
+
+        _visuals.UpdateBalance(_balance);
     }
 
     // Blackjack ratio percent means e.g 3 to 2 (150% = 1.5), 6 to 5 (120% = 1.2)
@@ -126,20 +129,19 @@ public class ChipManager : MonoBehaviour
         // Add the offset.
         playerHand.ChipField.AddChips(blackjackValue);
 
-        playerHand.Visuals.UpdateVisuals(HandState.Won);
+        playerHand.ChangeState(HandState.Won);
     }
 
     // Give chips 1 to 1.
     public void HandleWin(PlayerHand playerHand) {
         playerHand.ChipField.AddChips(playerHand.ChipField.ChipCount);
 
-        playerHand.Visuals.UpdateVisuals(HandState.Won);
+        playerHand.ChangeState(HandState.Won);
     }
 
     public void HandleGameResults(List<PlayerHand> hands, DealerHand dealerHand) {
         foreach (var hand in hands) {
-            // If not busted.
-            if (hand.ChipField.ChipCount > 0) {
+            if (hand.State == HandState.Inactive && hand.ChipField.ChipCount > 0) {
                 // Win
                 if (hand.Score > dealerHand.Score || dealerHand.Score > 21) {
                     HandleWin(hand);
@@ -156,7 +158,7 @@ public class ChipManager : MonoBehaviour
     public void HandleLoss(PlayerHand playerHand) {
         playerHand.ChipField.ClearChips();
 
-        playerHand.Visuals.UpdateVisuals(HandState.Lost);
+        playerHand.ChangeState(HandState.Lost);
     }
 
     public void CollectAllChips(List<PlayerHand> hands) {

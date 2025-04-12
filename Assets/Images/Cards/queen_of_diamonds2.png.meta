@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      queen_of_diamonds2_0: 8212433840748585726
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

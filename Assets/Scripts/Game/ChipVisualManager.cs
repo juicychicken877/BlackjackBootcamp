@@ -74,5 +74,7 @@ public class ChipVisualManager : MonoBehaviour
     public void UpdateBalance(float balance) {
         // Update balance label.
         _balanceLabel.text = $"Balance: {balance}";
+
+        UpdateChipMenu(balance);
     }
 }

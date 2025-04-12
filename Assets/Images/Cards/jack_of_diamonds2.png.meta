@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      jack_of_diamonds2_0: -4162618455230226991
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

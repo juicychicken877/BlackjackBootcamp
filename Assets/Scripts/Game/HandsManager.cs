@@ -9,11 +9,12 @@ public class HandsManager : MonoBehaviour
     [SerializeField][Range(1, 6)] private int _playerHandCount = 3;
 
     private List<PlayerHand> _playerHands;
+    private List<PlayerHand> _playingHands;
     private PlayerHand _currPlayerHand;
 
     // Hands that match the rules of the game.
     public List<PlayerHand> PlayingHands {
-        get => _playerHands.FindAll(hand => hand.ChipField.ChipCount > 0);
+        get => _playingHands;
     }
     public List<PlayerHand> PlayerHands {
         get => _playerHands;
@@ -67,28 +68,31 @@ public class HandsManager : MonoBehaviour
 
     public void NextHand() {
         // Set previous hand inactive.
-        if (_currPlayerHand != null && _currPlayerHand.Visuals.CurrVisualState == HandState.Active) {
-            _currPlayerHand.Visuals.UpdateVisuals(HandState.Inactive);
+        if (_currPlayerHand != null && _currPlayerHand.State == HandState.Active) {
+            _currPlayerHand.ChangeState(HandState.Inactive);
         }
 
         if (_currPlayerHand == null) {
-            _currPlayerHand = PlayingHands[0];
+            _currPlayerHand = _playerHands[0];
         } else {
-            int currPlayerHandIndex = PlayingHands.IndexOf(_currPlayerHand);
-            // All player hands were played.
-            if (currPlayerHandIndex == PlayingHands.Count - 1) {
+            // Last hand.
+            if (_currPlayerHand.Index == _playerHands.Count - 1) {
                 _currPlayerHand = null;
             } else {
-                _currPlayerHand = PlayingHands[currPlayerHandIndex + 1];
+                // Next hand.
+                _currPlayerHand = _playerHands[_currPlayerHand.Index + 1];
             }
         }
-
+        
         // Set current hand active.
         if (_currPlayerHand != null) {
-            _currPlayerHand.Visuals.UpdateVisuals(HandState.Active);
+            // No money in a chip field (Optional)
+            if (_currPlayerHand.ChipField.ChipCount <= 0) {
+                NextHand();
+            }
+            _currPlayerHand?.ChangeState(HandState.Active);
         }
     }
-
     public void DisableBetting() {
         foreach (var hand in _playerHands) {
             hand.ChipField.Visuals.ChangeActionBtnsActive(false);

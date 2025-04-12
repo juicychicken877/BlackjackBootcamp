@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      jack_of_clubs_0: -7702829183427735157
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
