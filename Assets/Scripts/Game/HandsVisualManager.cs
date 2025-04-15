@@ -31,7 +31,6 @@ public class HandsVisualManager : MonoBehaviour
         for (int i = 0; i < playerHandCount; i++) {
             PlayerHand newHand = NewPlayerHand();
             playerHands.Add(newHand);
-            newHand.Index = i;
         }
 
         return playerHands;
@@ -43,10 +42,10 @@ public class HandsVisualManager : MonoBehaviour
         return newHand.GetComponent<PlayerHand>();
     }
 
-    public void SetPlayerHandIndex(PlayerHand playerHand) {
+    public void SetPlayerHandPos(PlayerHand playerHand, int index) {
         GameObject playerHandObj = playerHand.gameObject;
 
-        playerHandObj.transform.SetSiblingIndex(playerHand.Index);
+        playerHandObj.transform.SetSiblingIndex(index);
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(_playerHandsParentTransform.GetComponent<RectTransform>());
     }

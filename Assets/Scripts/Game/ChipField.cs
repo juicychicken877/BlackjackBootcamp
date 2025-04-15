@@ -8,13 +8,13 @@ public class ChipField : MonoBehaviour, IChipHolder
     [SerializeField] private ChipFieldVisual _visuals;
 
     private Stack<float> _chipStack;
-    private float _chipCount;
+    private float _chips;
 
     public ChipManager.ChipFieldClickHandler ClickHandler;
     public ChipManager.ChipReturnHandler ChipReturnHandler;
 
-    public float ChipCount {
-        get => _chipCount;
+    public float Chips {
+        get => _chips;
     }
 
     public ChipFieldVisual Visuals {
@@ -27,39 +27,39 @@ public class ChipField : MonoBehaviour, IChipHolder
         };
 
         _visuals.ClearFieldBtnClick += (sender, e) => {
-            ChipReturnHandler?.Invoke(this, _chipCount);
+            ChipReturnHandler?.Invoke(this, _chips);
 
-            _visuals.UpdateVisuals(_chipCount);
+            _visuals.UpdateVisuals(_chips);
         };
 
         _visuals.UndoBtnClick += (sender, e) => {
             ChipReturnHandler?.Invoke(this, _chipStack.Peek());
 
-            _visuals.UpdateVisuals(_chipCount);
+            _visuals.UpdateVisuals(_chips);
         };
     }
 
     public void AddChips(float chips) {
         _chipStack ??= new();
 
-        _chipCount += chips;
+        _chips += chips;
 
         _chipStack.Push(chips);
 
-        _visuals.UpdateVisuals(_chipCount);
+        _visuals.UpdateVisuals(_chips);
     }
 
     public void PopChips() {
         if (_chipStack != null) {
-            _chipCount -= _chipStack.Peek();
+            _chips -= _chipStack.Peek();
             _chipStack.Pop();
-            _visuals.UpdateVisuals(_chipCount);
+            _visuals.UpdateVisuals(_chips);
         }
     }
 
     public void ClearChips() {
-        _chipCount = 0;
+        _chips = 0;
 
-        _visuals.UpdateVisuals(_chipCount);
+        _visuals.UpdateVisuals(_chips);
     }
 }

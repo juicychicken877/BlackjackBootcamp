@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class DealerHand : MonoBehaviour
@@ -6,7 +7,6 @@ public class DealerHand : MonoBehaviour
     [SerializeField] private DealerHandVisual _visuals;
 
     private List<CardSO> _cards;
-    private List<CardSO> _1ValueAces;
     private Card _hiddenCard;
     private int _score;
 
@@ -14,74 +14,70 @@ public class DealerHand : MonoBehaviour
         get => _score;
     }
 
-    public DealerHandVisual Visuals {
-        get => _visuals;
-    }
-
-    public void AddCard(CardSO cardSO, bool hidden) {
+    public async Task AddCard(CardSO cardSO, bool hidden) {
         _cards ??= new();
-        _1ValueAces ??= new();
 
         _cards.Add(cardSO);
-        Card newCardObj = _visuals.AddCard(cardSO, hidden);
+        Card newCardObj = await _visuals.AddCard(cardSO, _cards.Count-1, hidden);
 
         if (hidden) _hiddenCard = newCardObj;
-        if (!hidden) HandleScore(cardSO.Value);
+        if (!hidden) HandleScore();
     }
 
     public void Clear() {
         _score = 0;
-        _visuals.UpdateScore(_score);
-        
         _hiddenCard = null;
-        
-        _cards?.Clear();
-        _1ValueAces?.Clear();
 
+        _cards?.Clear();
         _visuals.Clear();
     }
 
     public bool HasBlackjack() {
-        if (_cards[0] != null && _hiddenCard != null) {
-            // If has blackjack
-            if (_cards[0].Value + _hiddenCard.CardSO.Value == 21) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
+        return GetCardSO(0).Value + GetCardSO(1).Value == 21;
     }
 
-    public bool HasAceFront() {
-        if (_cards[0] != null) {
-            return _cards[0].IsAce;
+    public CardSO GetCardSO(int index) {
+        // Out of bounds
+        if (index > _cards.Count - 1) {
+            return null;
+        } else {
+            return _cards[index];
         }
-
-        return false;
     }
 
     public void ShowHiddenCard() {
         _hiddenCard.Visuals.Turn(CardVisual.ImagePos.Front);
 
-        HandleScore(_hiddenCard.CardSO.Value);
+        HandleScore();
     }
 
-    private void HandleScore(int cardValue) {
-        _score += cardValue;
+    private void HandleScore() {
+        int newScore = 0;
 
-        // If over 21 and is soft
-        if (_score > 21) {
-            foreach (var cardSO in _cards) {
-                if (cardSO.IsAce && _1ValueAces.Find(ace => ace.GetInstanceID() == cardSO.GetInstanceID()) == null) {
-                    _score -= 10;
-                    _1ValueAces.Add(cardSO);
-                    break;
+        // Aces with value 1
+        List<Card> aces1 = new();
+        List<Card> cardObjs = _visuals.CardObjs;
+
+        foreach (var card in cardObjs) {
+            CardSO cardSO = card.CardSO;
+            newScore += cardSO.Value;
+
+            if (newScore > 21) {
+                List<Card> allAces = cardObjs.FindAll(card => card.CardSO.IsAce);
+
+                foreach (var ace in allAces) {
+                    // If ace's value wasnt reduced to 1.
+                    if (!aces1.Contains(ace)) {
+                        aces1.Add(ace);
+                        newScore -= 10;
+                        break;
+                    }
                 }
             }
         }
 
-        _visuals.UpdateScore(_score);
+        _score = newScore;
+        bool isSoft = cardObjs.FindAll(card => card.CardSO.IsAce).Count != aces1.Count;
+        _visuals.UpdateScore(_score, isSoft);
     }
 }

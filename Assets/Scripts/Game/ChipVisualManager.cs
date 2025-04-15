@@ -12,12 +12,13 @@ public class ChipVisualManager : MonoBehaviour
     private List<Button> _chipMenuBtns;
     private Button _currSelectedBtn;
     private Label _balanceLabel;
+    private bool _isMenuActive = false;
+
     public Button CurrSelectedBtn {
         get => _currSelectedBtn;
     }
-
-    public int CurrSelectedBtnValue {
-        get => Convert.ToInt32(_currSelectedBtn.text);
+    public float CurrSelectedChipValue {
+        get => (float)Convert.ToDouble(_currSelectedBtn.text);
     }
 
     private void OnEnable() {
@@ -38,7 +39,7 @@ public class ChipVisualManager : MonoBehaviour
 
         // Set click events.
         foreach (Button btn in _chipMenuBtns) {
-            int value = Convert.ToInt32(btn.text);
+            float value = (float)Convert.ToDouble(btn.text);
 
             btn.clicked += () => {
                 SelectBtn(btn);
@@ -53,6 +54,8 @@ public class ChipVisualManager : MonoBehaviour
         foreach (Button btn in _chipMenuBtns) {
             btn.SetEnabled(enabled);
         }
+
+        _isMenuActive = enabled;
     }
 
     public void UpdateChipMenu(float balance) {
@@ -75,6 +78,7 @@ public class ChipVisualManager : MonoBehaviour
         // Update balance label.
         _balanceLabel.text = $"Balance: {balance}";
 
-        UpdateChipMenu(balance);
+        if (_isMenuActive)
+            UpdateChipMenu(balance);
     }
 }

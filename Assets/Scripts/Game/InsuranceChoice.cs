@@ -12,7 +12,7 @@ public class InsuranceChoice : MonoBehaviour, IChipHolder
     public ChipManager.TakeInsuranceHandler TakeInsuranceHandler;
     public ChipManager.ChipReturnHandler ReturnHandler;
 
-    public float ChipCount {
+    public float Chips {
         get => _chipCount;
     }
 

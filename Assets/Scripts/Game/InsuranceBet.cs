@@ -47,7 +47,7 @@ public class InsuranceBet : MonoBehaviour
 
         // For insured hands, just return insurance money back to chip stack (balance).
         foreach (var set in insuredSets) {
-            set.InsuranceChoice.ReturnHandler(set.InsuranceChoice, set.InsuranceChoice.ChipCount);
+            set.InsuranceChoice.ReturnHandler(set.InsuranceChoice, set.InsuranceChoice.Chips);
         }
 
         // For uninsured hands, take everything.

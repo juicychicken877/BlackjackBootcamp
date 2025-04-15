@@ -8,11 +8,10 @@ public class HandsManager : MonoBehaviour
     [SerializeField] private DealerHand _dealerHand;
     [SerializeField][Range(1, 6)] private int _playerHandCount = 3;
 
-    private List<PlayerHand> _playerHands;
     private List<PlayerHand> _playingHands;
+    private List<PlayerHand> _playerHands;
     private PlayerHand _currPlayerHand;
 
-    // Hands that match the rules of the game.
     public List<PlayerHand> PlayingHands {
         get => _playingHands;
     }
@@ -30,38 +29,41 @@ public class HandsManager : MonoBehaviour
         _dealerHand.Clear();
 
         _playerHands = _visuals.CreateNewHands(_playerHands, _playerHandCount);
+        _playingHands?.Clear();
 
         ChipManager.Instance.SetChipFieldHandlers(_playerHands);
+    }
+
+    public void SetPlayingHands() {
+        _playingHands ??= new();
+
+        // Playing hands are those with money in chip fields.
+        foreach (var hand in _playerHands) {
+            if (hand.ChipField.Chips > 0) {
+                _playingHands.Add(hand);
+            }
+        }
     }
 
     public async Task SplitHand(PlayerHand playerHand, int delayBetweenCards) {
         await Task.Delay(delayBetweenCards);
 
-        // Set index+1 for every hand that comes after playerHand
-        for (int i=_playerHands.Count-1; i>=playerHand.Index+1; i--) {
-            PlayerHand hand = _playerHands.Find(playerHand => playerHand.Index == i);
-
-            if (hand != null) {
-                hand.Index += 1;
-            }
-        }
-
         // Create new hand.
         PlayerHand newPlayerHand = _visuals.NewPlayerHand();
-        newPlayerHand.Index = playerHand.Index + 1;
-        _playerHands.Insert(newPlayerHand.Index, newPlayerHand);
+
+        _playerHands.Insert(_playerHands.IndexOf(playerHand)+1, newPlayerHand);
+        _playingHands.Insert(_playingHands.IndexOf(playerHand)+1, newPlayerHand);
 
         ChipManager.Instance.HandleSplit(newPlayerHand, playerHand);
 
-        // Set order
-        _visuals.SetPlayerHandIndex(newPlayerHand);
+        // Set order.
+        _visuals.SetPlayerHandPos(newPlayerHand, _playerHands.IndexOf(newPlayerHand));
 
         await Task.Delay(delayBetweenCards);
 
-        // Move second card to new hand
-        newPlayerHand.AddCard(playerHand.GetCard(1), GameAction.Split);
+        // Move second card to new hand.
+        await newPlayerHand.AddCard(playerHand.GetCardSO(1), GameAction.Split);
         playerHand.RemoveCard(1);
-
 
         _currPlayerHand = playerHand;
     }
@@ -73,30 +75,21 @@ public class HandsManager : MonoBehaviour
         }
 
         if (_currPlayerHand == null) {
-            _currPlayerHand = _playerHands[0];
+            // First hand.
+            _currPlayerHand = _playingHands[0];
         } else {
+            int currHandIndex = _playingHands.IndexOf(_currPlayerHand);
             // Last hand.
-            if (_currPlayerHand.Index == _playerHands.Count - 1) {
+            if (currHandIndex == _playingHands.Count - 1) {
                 _currPlayerHand = null;
             } else {
                 // Next hand.
-                _currPlayerHand = _playerHands[_currPlayerHand.Index + 1];
+                _currPlayerHand = _playingHands[currHandIndex + 1];
             }
         }
         
-        // Set current hand active.
         if (_currPlayerHand != null) {
-            // No money in a chip field (Optional)
-            if (_currPlayerHand.ChipField.ChipCount <= 0) {
-                NextHand();
-            }
-            _currPlayerHand?.ChangeState(HandState.Active);
-        }
-    }
-    public void DisableBetting() {
-        foreach (var hand in _playerHands) {
-            hand.ChipField.Visuals.ChangeActionBtnsActive(false);
-            hand.ChipField.Visuals.DisableInteractions();
+            _currPlayerHand.ChangeState(HandState.Active);
         }
     }
 }

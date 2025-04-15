@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using BlackjackNamespace;
+using System.Threading.Tasks;
 
 public class PlayerHandVisual : MonoBehaviour
 {
@@ -18,41 +19,42 @@ public class PlayerHandVisual : MonoBehaviour
     [SerializeField] private Sprite _grayCircle;
     [Tooltip("Offsets for card object placing")]
     [SerializeField] private Vector3 _doubleDownCardAddOffset;
-    [SerializeField] private float _nextCardOffsetX = 1.5f;
-    [SerializeField] private float _nextCardOffsetY = 2.5f;
-    [SerializeField] private float _nextCardOffsetZ = -0.05f;
+    [SerializeField] private Vector3 _firstCardPos;
+    [SerializeField] private Vector3 _nextCardOffset;
 
-    public Card AddCard(CardSO cardSO, int cardCount, GameAction actionType) {
-        // Calculate new position.
-        Vector3 newCardLocalPos = new((cardCount-1) * _nextCardOffsetX, (cardCount - 1) * _nextCardOffsetY, (cardCount - 1) * _nextCardOffsetZ);
+    public List<Card> CardObjs {
+        get => _cardsParentTransform.GetComponentsInChildren<Card>().ToList();
+    }
 
-        //Vector3 newCardWorldPos = _cardsParentTransform.TransformPoint(newCardLocalPos);
-
+    public async Task AddCard(CardSO cardSO, int newCardIndex, GameAction actionType) {
         // Create new card.
         GameObject newCard = Instantiate(cardSO.Prefab);
         Card newCardScript = newCard.GetComponent<Card>();
 
-        // Set parent.
-        newCard.transform.SetParent(_cardsParentTransform, false);
-
+        // Calculate new position.
+        Vector3 newCardLocalPos = new(newCardIndex * _nextCardOffset.x + _firstCardPos.x, newCardIndex * _nextCardOffset.y + _firstCardPos.y, newCardIndex * _nextCardOffset.z + _firstCardPos.z);
         // If the action is double down, rotate the card 90 degrees in Z and add additional offset
         if (actionType == GameAction.DoubleDown) {
             newCardLocalPos += _doubleDownCardAddOffset;
             newCard.transform.eulerAngles = new Vector3(0, 0, 90);
         }
 
-        newCard.transform.localPosition = newCardLocalPos;
-        //// Start animating.
-        //newCardScript.Visuals.Animator.StartDrawingAnimation(Shoe.Instance.transform.position, newCardWorldPos, newCard.transform.position);
+        // Set parent.
+        newCard.transform.SetParent(_cardsParentTransform, false);
 
-        return newCardScript;
+        // Start animating.
+        if (actionType == GameAction.Hit || actionType == GameAction.DoubleDown || actionType == GameAction.None) {
+            Vector3 newCardWorldPos = _cardsParentTransform.TransformPoint(newCardLocalPos);
+
+            await newCardScript.Visuals.Animator.Animate(Shoe.Instance.transform.position, newCardWorldPos, newCard.transform);
+        }
     }
 
-    public void RemoveCard(CardSO cardSO) {
+    public void RemoveCard(int index) {
         // Find a card that has a reference to the CardSO in PlayerHand
         List<Card> cards = _cardsParentTransform.GetComponentsInChildren<Card>().ToList();
 
-        Card card = cards.Find(card => card.CardSO.GetInstanceID() == cardSO.GetInstanceID());
+        Card card = cards[index];
 
         if (card != null) {
             Destroy(card.gameObject);
@@ -76,11 +78,11 @@ public class PlayerHandVisual : MonoBehaviour
         }
     }
 
-    public void UpdateScore(int score) {
+    public void UpdateScore(int score, bool isSoft) {
         if (score == 0) {
             _scoreText.text = "";
         } else {
-            _scoreText.text = score.ToString();
+            _scoreText.text = isSoft ? $"{score}/{(score - 10)}" : $"{score}";
         }
     }
 }

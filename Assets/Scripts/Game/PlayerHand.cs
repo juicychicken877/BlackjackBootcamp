@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using BlackjackNamespace;
+using System.Threading.Tasks;
 
 public class PlayerHand : MonoBehaviour
 {
@@ -8,59 +9,45 @@ public class PlayerHand : MonoBehaviour
     [SerializeField] private ChipField _chipField;
 
     private List<CardSO> _cards;
-    // A list of aces which value has been decreased to 1
-    private List<CardSO> _1ValueAces;
-
     public HandState _state;
-    private int _index;
     private int _score;
 
     public HandState State {
         get => _state;
     }
 
-    public int Index {
-        get => _index;
-        set => _index = value;
-    }
-
     public int Score {
         get => _score;
-    }
-
-    public PlayerHandVisual Visuals {
-        get => _visuals;
     }
 
     public ChipField ChipField {
         get => _chipField;
     }
 
-    public void AddCard(CardSO cardSO, GameAction actionType) {
+    public async Task AddCard(CardSO cardSO, GameAction actionType) {
         _cards ??= new();
-        _1ValueAces ??= new();
 
         _cards.Add(cardSO);
-        _visuals.AddCard(cardSO, _cards.Count, actionType);
+        await _visuals.AddCard(cardSO, _cards.Count-1, actionType);
 
-        HandleScore(cardSO.Value);
+        HandleScore();
     }
 
     public void RemoveCard(int index) {
         // Out of bounds
         if (index > _cards.Count - 1) return;
 
-        CardSO cardSO = _cards[index];
+        CardSO cardSO = GetCardSO(index);
 
         if (cardSO != null) {
-            _score -= cardSO.Value;
-            _visuals.UpdateScore(_score);
             _cards.Remove(cardSO);
-            _visuals.RemoveCard(cardSO);
+            _visuals.RemoveCard(index);
+
+            HandleScore();
         }
     }
 
-    public CardSO GetCard(int index) {
+    public CardSO GetCardSO(int index) {
         // Out of bounds
         if (index > _cards.Count-1) {
             return null;
@@ -75,45 +62,50 @@ public class PlayerHand : MonoBehaviour
     }
 
     public bool HasBlackjack() {
-        if (_cards.Count == 2) {
-            if ((_cards[0].IsAce && _cards[1].Value == 10) || (_cards[0].Value == 10 && _cards[1].IsAce)) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
+        return GetCardSO(0).Value + GetCardSO(1).Value == 21;
     }
 
-    private void HandleScore(int cardValue) {
-        _score += cardValue;
+    private void HandleScore() {
+        int newScore = 0;
 
-        // If over 21 and is soft
-        if (_score > 21) {
-            foreach (var cardSO in _cards) {
-                if (cardSO.IsAce && _1ValueAces.Find(ace => ace.GetInstanceID() == cardSO.GetInstanceID()) == null) {
-                    _score -= 10;
-                    _1ValueAces.Add(cardSO);
-                    break;
+        // Aces with value 1
+        List<Card> aces1 = new();
+        List<Card> cardObjs = _visuals.CardObjs;
+
+        foreach (var card in cardObjs) {
+            CardSO cardSO = card.CardSO;
+            newScore += cardSO.Value;
+
+            if (newScore > 21) {
+                List<Card> allAces = cardObjs.FindAll(card => card.CardSO.IsAce);
+
+                foreach (var ace in allAces) {
+                    // If ace's value wasnt reduced to 1.
+                    if (!aces1.Contains(ace)) {
+                        aces1.Add(ace);
+                        newScore -= 10;
+                        break;
+                    }
                 }
             }
         }
 
-        _visuals.UpdateScore(_score);
+        _score = newScore;
+        bool isSoft = cardObjs.FindAll(card => card.CardSO.IsAce).Count != aces1.Count;
+        _visuals.UpdateScore(_score, isSoft);
     }
 
     public List<GameAction> GetAvaliableGameActions() {
         // Player can always hit and stand.
         List<GameAction> avaliableActions = new() {
             GameAction.Hit,
-            GameAction.Stand
+            GameAction.Stand,
         };
 
         if (_cards.Count == 2) {
             avaliableActions.Add(GameAction.DoubleDown);
 
-            if (_cards[0].Value == _cards[1].Value) {
+            if (GetCardSO(0).Value == GetCardSO(1).Value) {
                 avaliableActions.Add(GameAction.Split);
             }
         }

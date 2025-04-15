@@ -12,8 +12,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private ChipManager _chipManager;
     [SerializeField] private InsuranceBet _insuranceBet;
 
-    private GameSettings _gameSettings;
-
     public delegate void ActionHandler();
 
     private void Awake() {
@@ -24,11 +22,6 @@ public class GameManager : MonoBehaviour
         _insuranceBet.EndOfInsuranceBet += (sender, e) => {
             ResolveInsuranceBet();
         };
-
-        // Set new game settings.
-        NewGameSettings(new(
-            true
-        ));
     }
 
     private async void HandleGameActionAsync(object sender, GameVisualManager.ActionBtnClickedEventArgs e) {
@@ -55,7 +48,7 @@ public class GameManager : MonoBehaviour
             }
             break;
             case GameAction.Split: {
-                await _handsManager.SplitHand(_handsManager.CurrPlayerHand, _dealer.DelayBetweenCardsMs);
+                await _handsManager.SplitHand(_handsManager.CurrPlayerHand, _dealer.ActionDelay);
 
                 AfterGameAction();
             }
@@ -90,7 +83,7 @@ public class GameManager : MonoBehaviour
         _visuals.SetDealBtn(true, true);
 
         // Update Chip Manager and Visuals
-        _chipManager.Visuals.UpdateChipMenu(_chipManager.Balance);
+        _chipManager.Visuals.UpdateChipMenu(true);
         _chipManager.Visuals.UpdateBalance(_chipManager.Balance);
 
         // Create new hands and setup click handlers for chip fields.
@@ -98,21 +91,20 @@ public class GameManager : MonoBehaviour
     }
 
     private async void DealCards(object sender, System.EventArgs e) {
-        // Playing hands are those with money in chip fields (Optional).
-        List<PlayerHand> playingHands = _handsManager.PlayerHands.FindAll(hand => hand.ChipField.ChipCount > 0);
+        _handsManager.SetPlayingHands();
 
         // No money in chip fields.
-        if (playingHands.Count == 0) {
+        if (_handsManager.PlayingHands.Count == 0) {
             return;
         }
 
         // Turn off chip menu buttons and blackjack game action buttons, also disable betting.
         _chipManager.Visuals.UpdateChipMenu(false);
         _visuals.SetDealBtn(false, false);
-        _handsManager.DisableBetting();
+        _chipManager.DisableBetting(_handsManager.PlayerHands);
 
         // Deal and start game.
-        await _dealer.DealFirstCardsAsync(playingHands, _handsManager.DealerHand);
+        await _dealer.DealFirstCardsAsync(_handsManager.PlayingHands, _handsManager.DealerHand);
 
         AfterFirstCards();
     }
@@ -126,6 +118,7 @@ public class GameManager : MonoBehaviour
         } else {
             // Dealer has no blackjack, start blackjack game.
             _insuranceBet.HandleNoBlackjackCase();
+
             _handsManager.NextHand();
             AfterGameAction();
         }
@@ -134,16 +127,16 @@ public class GameManager : MonoBehaviour
     }
 
     // Method invoked after dealing the initial hands (set of 2 cards).
-    private async void AfterFirstCards() {
-        if (_handsManager.DealerHand.HasAceFront()) {
-            _insuranceBet.StartInsuranceBet(_handsManager.PlayerHands);
+    private void AfterFirstCards() {
+        if (_handsManager.DealerHand.GetCardSO(0).IsAce) {
+            _insuranceBet.StartInsuranceBet(_handsManager.PlayingHands);
         } else {
             // Check for dealer's blackjack (10 front).
             if (_handsManager.DealerHand.HasBlackjack()) {
                 _handsManager.DealerHand.ShowHiddenCard();
 
                 // Handle losses.
-                foreach (var hand in _handsManager.PlayerHands) {
+                foreach (var hand in _handsManager.PlayingHands) {
                     _chipManager.HandleLoss(hand);
                 }
 
@@ -151,20 +144,18 @@ public class GameManager : MonoBehaviour
             } else {
                 // If not, continue the game.
                 _handsManager.NextHand();
-
-                await CheckForPlayerBlackjack();
-
-                _visuals.SetActionBtns(_handsManager.CurrPlayerHand);
+                AfterGameAction();
             }
         }
     }
 
-    private async Task CheckForPlayerBlackjack() {
+    private async Task<bool> CheckForPlayerBlackjack() {
         if (_handsManager.CurrPlayerHand.HasBlackjack()) {
             await _dealer.HandlePlayerBlackjackAsync(_handsManager.CurrPlayerHand);
-            _handsManager.NextHand();
-            AfterGameAction();
+
+            return true;
         }
+        return false;
     }
 
     // Method invoked mostly after calling NextHand() and after splitting.
@@ -172,19 +163,22 @@ public class GameManager : MonoBehaviour
         // Next player hand.
         if (_handsManager.CurrPlayerHand != null) {
             // If it was splitted - CurrPlayerHand doesnt have 2nd card.
-            if (_handsManager.CurrPlayerHand.GetCard(1) == null) {
+            if (_handsManager.CurrPlayerHand.GetCardSO(1) == null) {
                 await _dealer.HandleHitAsync(_handsManager.CurrPlayerHand, null);
             }
 
-            await CheckForPlayerBlackjack();
-
-            if (_handsManager.CurrPlayerHand) 
+            // Check for blackjack.
+            if (await CheckForPlayerBlackjack()) {
+                _handsManager.NextHand();
+                AfterGameAction();
+            } else {
                 _visuals.SetActionBtns(_handsManager.CurrPlayerHand);
+            }
         } else {
             // Dealer turn.
             _visuals.SetActionBtns(false);
 
-            List<PlayerHand> handsLeft = _handsManager.PlayerHands.FindAll(hand => hand.State == HandState.Inactive);
+            List<PlayerHand> handsLeft = _handsManager.PlayingHands.FindAll(hand => hand.State == HandState.Inactive);
 
             if (handsLeft.Count > 0) {
                 await _dealer.DrawUntil17Async(_handsManager.DealerHand);
@@ -193,14 +187,9 @@ public class GameManager : MonoBehaviour
                 _handsManager.DealerHand.ShowHiddenCard();
             }
 
-            _chipManager.HandleGameResults(_handsManager.PlayerHands, _handsManager.DealerHand);
+            _chipManager.HandleGameResults(_handsManager.PlayingHands, _handsManager.DealerHand);
 
             _visuals.SetNextRoundBtn(true);
         }
     }
-
-    public void NewGameSettings(GameSettings newGameSettings) {
-        _gameSettings = newGameSettings;
-    }
-
 }

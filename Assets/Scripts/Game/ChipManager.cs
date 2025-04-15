@@ -70,7 +70,7 @@ public class ChipManager : MonoBehaviour
 
     private void ChipFieldClick(ChipField chipField) {
         if (_visuals.CurrSelectedBtn != null) {
-            int chipValue = _visuals.CurrSelectedBtnValue;
+            float chipValue = _visuals.CurrSelectedChipValue;
 
             if (CanAffordChips(chipValue)) {
                 chipField.AddChips(chipValue);
@@ -85,7 +85,7 @@ public class ChipManager : MonoBehaviour
     }
 
     public float GetInsuranceValue(PlayerHand hand) {
-        return hand.ChipField.ChipCount / 2;
+        return hand.ChipField.Chips / 2;
     }
 
     private bool CanAffordChips(float chip) {
@@ -94,7 +94,7 @@ public class ChipManager : MonoBehaviour
 
     // Gets avaliable game actions for a hand and corrects them based on affordability (avaliable chips).
     public List<GameAction> CorrectAvaliableGameActions(PlayerHand playerHand, List<GameAction> avaliableHandGameActions) {
-        if (_balance < playerHand.ChipField.ChipCount) {
+        if (_balance < playerHand.ChipField.Chips) {
             avaliableHandGameActions.Remove(GameAction.DoubleDown);
             avaliableHandGameActions.Remove(GameAction.Split);
         }
@@ -104,7 +104,7 @@ public class ChipManager : MonoBehaviour
 
     // Double the amount of chips in chip field.
     public void HandleDoubleDown(PlayerHand playerHand) {
-        float handValue = playerHand.ChipField.ChipCount;
+        float handValue = playerHand.ChipField.Chips;
         playerHand.ChipField.AddChips(handValue);
 
         _balance -= handValue;
@@ -114,7 +114,7 @@ public class ChipManager : MonoBehaviour
 
     // Place chips at the new hands' chip field.
     public void HandleSplit(PlayerHand newHand, PlayerHand initialHand) {
-        float handValue = initialHand.ChipField.ChipCount;
+        float handValue = initialHand.ChipField.Chips;
         newHand.ChipField.AddChips(handValue);
 
         _balance -= handValue;
@@ -124,7 +124,7 @@ public class ChipManager : MonoBehaviour
 
     // Blackjack ratio percent means e.g 3 to 2 (150% = 1.5), 6 to 5 (120% = 1.2)
     public void HandleBlackjack(PlayerHand playerHand, float blackjackRatioPercent) {
-        int blackjackValue = Convert.ToInt32(playerHand.ChipField.ChipCount * blackjackRatioPercent);
+        int blackjackValue = Convert.ToInt32(playerHand.ChipField.Chips * blackjackRatioPercent);
 
         // Add the offset.
         playerHand.ChipField.AddChips(blackjackValue);
@@ -134,14 +134,14 @@ public class ChipManager : MonoBehaviour
 
     // Give chips 1 to 1.
     public void HandleWin(PlayerHand playerHand) {
-        playerHand.ChipField.AddChips(playerHand.ChipField.ChipCount);
+        playerHand.ChipField.AddChips(playerHand.ChipField.Chips);
 
         playerHand.ChangeState(HandState.Won);
     }
 
     public void HandleGameResults(List<PlayerHand> hands, DealerHand dealerHand) {
         foreach (var hand in hands) {
-            if (hand.State == HandState.Inactive && hand.ChipField.ChipCount > 0) {
+            if (hand.State == HandState.Inactive && hand.ChipField.Chips > 0) {
                 // Win
                 if (hand.Score > dealerHand.Score || dealerHand.Score > 21) {
                     HandleWin(hand);
@@ -163,7 +163,7 @@ public class ChipManager : MonoBehaviour
 
     public void CollectAllChips(List<PlayerHand> hands) {
         foreach (var hand in hands) {
-            ReturnChips(hand.ChipField, hand.ChipField.ChipCount);
+            ReturnChips(hand.ChipField, hand.ChipField.Chips);
         }
     }
 
@@ -171,12 +171,19 @@ public class ChipManager : MonoBehaviour
         _balance += amount;
 
         // If returned all chips.
-        if (chipHolder.ChipCount == amount) {
+        if (chipHolder.Chips == amount) {
             chipHolder.ClearChips();
         } else {
             chipHolder.PopChips();
         }
 
         _visuals.UpdateBalance(_balance);
+    }
+
+    public void DisableBetting(List<PlayerHand> playerHands) {
+        foreach (var hand in playerHands) {
+            hand.ChipField.Visuals.DisableInteractions();
+            hand.ChipField.Visuals.ChangeActionBtnsActive(false);
+        }
     }
 }
